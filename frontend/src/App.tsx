@@ -9,6 +9,7 @@ import InvitationsPage from './pages/InvitationsPage'
 import LoginPage from './pages/LoginPage'
 import NewChildPage from './pages/NewChildPage'
 import RegisterPage from './pages/RegisterPage'
+import ReportsPage from './pages/ReportsPage'
 
 export default function App() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
           <Route path="/children/new" element={<NewChildPage />} />
           <Route path="/children/:childId" element={<ChildDetailPage />} />
           <Route path="/children/:childId/care-team" element={<CareTeamPage />} />
+          <Route path="/children/:childId/reports" element={<ReportsPage />} />
         </Route>
       </Route>
 

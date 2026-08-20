@@ -100,9 +100,9 @@ export default function DashboardPage() {
           </div>
 
           <div className="dashboard-shortcuts">
-            <div><span className="shortcut-icon report">▤</span><strong>التقارير</strong><small>قريبًا</small></div>
+            <Link to={`/children/${selectedChild.id}/reports`} className="dashboard-shortcut-link"><span className="shortcut-icon report">▤</span><strong>التقارير</strong><small>الملفات وسجل النسخ</small></Link>
             <div><span className="shortcut-icon appointment">▦</span><strong>المواعيد</strong><small>قريبًا</small></div>
-            <div><span className="shortcut-icon goal">◎</span><strong>الأهداف</strong><small>قريبًا</small></div>
+            <div><span className="shortcut-icon goal">◎</span><strong>الأهداف</strong><small>الخطوة التالية</small></div>
             <Link to={`/children/${selectedChild.id}/care-team`} className="dashboard-shortcut-link"><span className="shortcut-icon note">♧</span><strong>فريق الرعاية</strong><small>إدارة الوصول</small></Link>
           </div>
 
@@ -119,7 +119,7 @@ export default function DashboardPage() {
             <div className="card-title-row"><div><span className="soft-kicker">جدول اليوم</span><h2>كل ما يخص الطفل في مكان واحد</h2></div><span className="status-pill">MVP</span></div>
             <div className="timeline-placeholder">
               <span className="timeline-icon">✓</span>
-              <div><strong>ملف الرعاية جاهز للتعاون</strong><p>يمكنك الآن إضافة فريق الرعاية وتحديد الصلاحيات ومدة الوصول لكل عضو.</p></div>
+              <div><strong>التعاون والوثائق أصبحا جاهزين</strong><p>فريق الرعاية والصلاحيات والتقارير وسجل النسخ أصبحت مرتبطة بملف الطفل.</p></div>
             </div>
           </div>
 

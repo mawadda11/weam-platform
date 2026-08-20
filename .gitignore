@@ -24,6 +24,7 @@ __pycache__/
 venv/
 backend/.venv/
 backend/*.db
+.weam_storage/
 
 # Coverage
 .coverage

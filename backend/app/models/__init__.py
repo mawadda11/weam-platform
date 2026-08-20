@@ -1,5 +1,6 @@
 from app.models.care_team import AccessAuditLog, CareInvitation, CareTeamMembership
 from app.models.child import CareProfile, Child, ChildIdentity, GuardianMembership
+from app.models.report import Report, ReportVersion
 from app.models.user import User
 
 __all__ = [
@@ -11,4 +12,6 @@ __all__ = [
     "CareTeamMembership",
     "CareInvitation",
     "AccessAuditLog",
+    "Report",
+    "ReportVersion",
 ]
