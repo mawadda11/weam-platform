@@ -115,3 +115,47 @@ export interface ChildReport {
   updated_at: string
   versions: ReportVersion[]
 }
+
+export type GoalStatus = 'new' | 'in_progress' | 'completed' | 'paused'
+
+export interface GoalUpdate {
+  id: string
+  actor_user_id: string
+  actor_name: string
+  note?: string | null
+  progress_percent: number
+  status: GoalStatus
+  created_at: string
+}
+
+export interface ChildGoal {
+  id: string
+  child_id: string
+  title: string
+  description?: string | null
+  category?: string | null
+  status: GoalStatus
+  progress_percent: number
+  start_date?: string | null
+  target_date?: string | null
+  assigned_to_user_id?: string | null
+  assigned_to_name?: string | null
+  created_by_user_id: string
+  created_by_name: string
+  created_at: string
+  updated_at: string
+  updates: GoalUpdate[]
+}
+
+export type TimelineEventType = 'profile' | 'team' | 'report' | 'goal'
+
+export interface TimelineEvent {
+  id: string
+  event_type: TimelineEventType
+  title: string
+  description?: string | null
+  actor_user_id?: string | null
+  actor_name?: string | null
+  occurred_at: string
+  data: Record<string, unknown>
+}

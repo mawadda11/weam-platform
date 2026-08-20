@@ -30,8 +30,11 @@ export default function ChildDetailPage() {
   const accessLabel = child.access_role === 'care_provider'
     ? 'مقدم رعاية'
     : child.guardian_type === 'primary' ? 'ولي أمر رئيسي' : 'ولي أمر ثانوي'
-  const canViewReports = child.guardian_type === 'primary' || child.access_permissions.includes('view_reports')
-  const canViewCareTeam = child.guardian_type === 'primary' || child.access_permissions.includes('view_care_team')
+  const primary = child.guardian_type === 'primary'
+  const canViewReports = primary || child.access_permissions.includes('view_reports')
+  const canViewCareTeam = primary || child.access_permissions.includes('view_care_team')
+  const canViewGoals = primary || child.access_permissions.includes('view_goals')
+  const canViewTimeline = primary || child.access_permissions.includes('view_timeline')
 
   return (
     <section className="prototype-detail-page">
@@ -43,9 +46,9 @@ export default function ChildDetailPage() {
 
       <div className="profile-shortcuts">
         {canViewReports ? <Link to={`/children/${child.id}/reports`} className="profile-shortcut-link"><span>▤</span><strong>التقارير</strong><small>الملفات وسجل النسخ</small></Link> : <div><span>▤</span><strong>التقارير</strong><small>غير مصرح</small></div>}
-        <div><span>◎</span><strong>الأهداف</strong><small>الخطوة التالية</small></div>
-        {canViewCareTeam ? <Link to={`/children/${child.id}/care-team`} className="profile-shortcut-link"><span>♧</span><strong>فريق الرعاية</strong><small>إدارة الفريق والصلاحيات</small></Link> : <div><span>♧</span><strong>فريق الرعاية</strong><small>غير مصرح</small></div>}
-        <div><span>▦</span><strong>المواعيد</strong><small>قريبًا</small></div>
+        {canViewGoals ? <Link to={`/children/${child.id}/goals`} className="profile-shortcut-link"><span>◎</span><strong>الأهداف</strong><small>الخطة والتقدم</small></Link> : <div><span>◎</span><strong>الأهداف</strong><small>غير مصرح</small></div>}
+        {canViewCareTeam ? <Link to={`/children/${child.id}/care-team`} className="profile-shortcut-link"><span>♧</span><strong>فريق الرعاية</strong><small>الفريق والصلاحيات</small></Link> : <div><span>♧</span><strong>فريق الرعاية</strong><small>غير مصرح</small></div>}
+        {canViewTimeline ? <Link to={`/children/${child.id}/timeline`} className="profile-shortcut-link"><span>↻</span><strong>الخط الزمني</strong><small>رحلة الطفل كاملة</small></Link> : <div><span>↻</span><strong>الخط الزمني</strong><small>غير مصرح</small></div>}
       </div>
 
       <div className="prototype-metric-grid">
@@ -62,7 +65,7 @@ export default function ChildDetailPage() {
         <article className="prototype-detail-card lavender"><div className="detail-card-heading"><span>＋</span><h2>الخدمات</h2></div><Tags items={child.services} /></article>
       </div>
 
-      <div className="prototype-next-banner"><div><span className="soft-kicker">Milestone 01</span><h2>التقارير أصبحت جزءًا من ملف الرعاية</h2><p>يمكن حفظ PDF والصور، الاحتفاظ بكل نسخة سابقة، وتطبيق صلاحيات فريق الرعاية أو تقييد تقرير بعينه لأعضاء محددين.</p></div><span>02</span></div>
+      <div className="prototype-next-banner"><div><span className="soft-kicker">Milestone 01</span><h2>الرعاية أصبحت رحلة مترابطة</h2><p>فريق الرعاية والتقارير والأهداف والخط الزمني أصبحت مرتبطة بنفس ملف الطفل وبنفس نظام الصلاحيات.</p></div><span>03</span></div>
     </section>
   )
 }

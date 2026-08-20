@@ -4,12 +4,14 @@ import ProtectedRoute from './components/ProtectedRoute'
 import CareTeamPage from './pages/CareTeamPage'
 import ChildDetailPage from './pages/ChildDetailPage'
 import DashboardPage from './pages/DashboardPage'
+import GoalsPage from './pages/GoalsPage'
 import HomePage from './pages/HomePage'
 import InvitationsPage from './pages/InvitationsPage'
 import LoginPage from './pages/LoginPage'
 import NewChildPage from './pages/NewChildPage'
 import RegisterPage from './pages/RegisterPage'
 import ReportsPage from './pages/ReportsPage'
+import TimelinePage from './pages/TimelinePage'
 
 export default function App() {
   return (
@@ -26,6 +28,8 @@ export default function App() {
           <Route path="/children/:childId" element={<ChildDetailPage />} />
           <Route path="/children/:childId/care-team" element={<CareTeamPage />} />
           <Route path="/children/:childId/reports" element={<ReportsPage />} />
+          <Route path="/children/:childId/goals" element={<GoalsPage />} />
+          <Route path="/children/:childId/timeline" element={<TimelinePage />} />
         </Route>
       </Route>
 
