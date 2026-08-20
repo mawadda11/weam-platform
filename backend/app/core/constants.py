@@ -45,6 +45,8 @@ class CarePermission(StrEnum):
     MANAGE_PERMISSIONS = "manage_permissions"
 
 
-class ReportVisibility(StrEnum):
-    CARE_TEAM = "care_team"
-    RESTRICTED = "restricted"
+class GoalStatus(StrEnum):
+    NEW = "new"
+    IN_PROGRESS = "in_progress"
+    COMPLETED = "completed"
+    PAUSED = "paused"

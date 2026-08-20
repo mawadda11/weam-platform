@@ -101,8 +101,8 @@ export default function DashboardPage() {
 
           <div className="dashboard-shortcuts">
             <Link to={`/children/${selectedChild.id}/reports`} className="dashboard-shortcut-link"><span className="shortcut-icon report">▤</span><strong>التقارير</strong><small>الملفات وسجل النسخ</small></Link>
-            <div><span className="shortcut-icon appointment">▦</span><strong>المواعيد</strong><small>قريبًا</small></div>
-            <div><span className="shortcut-icon goal">◎</span><strong>الأهداف</strong><small>الخطوة التالية</small></div>
+            <Link to={`/children/${selectedChild.id}/timeline`} className="dashboard-shortcut-link"><span className="shortcut-icon appointment">↻</span><strong>الخط الزمني</strong><small>رحلة الطفل كاملة</small></Link>
+            <Link to={`/children/${selectedChild.id}/goals`} className="dashboard-shortcut-link"><span className="shortcut-icon goal">◎</span><strong>الأهداف</strong><small>الخطة والتقدم</small></Link>
             <Link to={`/children/${selectedChild.id}/care-team`} className="dashboard-shortcut-link"><span className="shortcut-icon note">♧</span><strong>فريق الرعاية</strong><small>إدارة الوصول</small></Link>
           </div>
 
@@ -116,10 +116,10 @@ export default function DashboardPage() {
           </div>
 
           <div className="today-card">
-            <div className="card-title-row"><div><span className="soft-kicker">جدول اليوم</span><h2>كل ما يخص الطفل في مكان واحد</h2></div><span className="status-pill">MVP</span></div>
+            <div className="card-title-row"><div><span className="soft-kicker">رحلة الطفل</span><h2>كل التحديثات في خط زمني واحد</h2></div><Link to={`/children/${selectedChild.id}/timeline`}>فتح الخط الزمني</Link></div>
             <div className="timeline-placeholder">
               <span className="timeline-icon">✓</span>
-              <div><strong>التعاون والوثائق أصبحا جاهزين</strong><p>فريق الرعاية والصلاحيات والتقارير وسجل النسخ أصبحت مرتبطة بملف الطفل.</p></div>
+              <div><strong>Milestone 1 أصبح مترابطًا</strong><p>الملف وفريق الرعاية والتقارير والأهداف تظهر الآن ضمن رحلة موحدة وبصلاحيات واضحة.</p></div>
             </div>
           </div>
 
