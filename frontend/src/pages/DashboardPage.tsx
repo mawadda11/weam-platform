@@ -8,11 +8,13 @@ export default function DashboardPage() {
   const { user } = useAuth()
   const [children, setChildren] = useState<ChildProfile[]>([])
   const [selectedChildId, setSelectedChildId] = useState<string>('')
-  const [loading, setLoading] = useState(user?.role === 'guardian')
+  const canAccessChildren = user?.role === 'guardian' || user?.role === 'care_provider'
+  const [loading, setLoading] = useState(canAccessChildren)
   const [error, setError] = useState('')
 
   useEffect(() => {
-    if (user?.role !== 'guardian') return
+    if (!canAccessChildren) return
+    setLoading(true)
     apiClient.get<ChildProfile[]>('/children')
       .then((response) => {
         setChildren(response.data)
@@ -20,23 +22,47 @@ export default function DashboardPage() {
       })
       .catch(() => setError('تعذر تحميل ملفات الأطفال.'))
       .finally(() => setLoading(false))
-  }, [user?.role])
+  }, [canAccessChildren])
 
   const selectedChild = useMemo(() => children.find((child) => child.id === selectedChildId) ?? children[0], [children, selectedChildId])
 
-  if (user?.role !== 'guardian') {
+  if (!canAccessChildren) {
     return (
       <section className="provider-dashboard">
         <div className="soft-dashboard-banner">
-          <div><span className="soft-kicker">مرحبًا {user?.full_name}</span><h1>حسابك جاهز كبداية ✨</h1><p>في الخطوة التالية نربطك بفريق الرعاية وصلاحيات الأطفال.</p></div>
+          <div><span className="soft-kicker">مرحبًا {user?.full_name}</span><h1>حسابك جاهز كبداية ✨</h1><p>سيتم تفعيل لوحة هذا النوع من الحسابات في المراحل القادمة.</p></div>
           {user?.verification_status === 'unverified' && <span className="status-pill warning">غير موثّق</span>}
         </div>
-        <div className="prototype-empty-card"><span>👥</span><h2>فريق الرعاية قادم</h2><p>سيظهر هنا الأطفال المصرح لك بالوصول إليهم بعد قبول الدعوات وتحديد الصلاحيات.</p></div>
       </section>
     )
   }
 
   if (loading) return <div className="loading-row"><div className="spinner" /> جاري تحميل الملفات...</div>
+
+  if (user?.role === 'care_provider') {
+    return (
+      <section className="provider-dashboard">
+        {error && <div className="alert alert-error">{error}</div>}
+        <div className="soft-dashboard-banner">
+          <div><span className="soft-kicker">مرحبًا {user.full_name}</span><h1>فريق الرعاية في مساحة واحدة</h1><p>تظهر هنا فقط ملفات الأطفال التي قُبلت دعوتك للوصول إليها وضمن الصلاحيات المحددة لك.</p></div>
+          <Link className="btn btn-primary" to="/invitations">عرض الدعوات</Link>
+        </div>
+        {children.length ? (
+          <div className="provider-child-grid">
+            {children.map((child) => (
+              <Link key={child.id} to={`/children/${child.id}`} className="provider-child-card">
+                <span className="provider-child-avatar">{child.first_name.slice(0, 1)}</span>
+                <div><small>ملف مصرح</small><h2>{child.preferred_name || child.first_name}</h2><p>{child.needs[0] || child.services[0] || 'ملف رعاية'}</p></div>
+                <span>←</span>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="prototype-empty-card"><span>✉</span><h2>لا توجد ملفات مصرح بها بعد</h2><p>افتحي صفحة الدعوات واقبلي دعوة ولي الأمر أولًا.</p><Link className="btn btn-primary" to="/invitations">عرض الدعوات</Link></div>
+        )}
+      </section>
+    )
+  }
 
   if (!children.length) {
     return (
@@ -77,7 +103,7 @@ export default function DashboardPage() {
             <div><span className="shortcut-icon report">▤</span><strong>التقارير</strong><small>قريبًا</small></div>
             <div><span className="shortcut-icon appointment">▦</span><strong>المواعيد</strong><small>قريبًا</small></div>
             <div><span className="shortcut-icon goal">◎</span><strong>الأهداف</strong><small>قريبًا</small></div>
-            <div><span className="shortcut-icon note">▧</span><strong>الملاحظات</strong><small>قريبًا</small></div>
+            <Link to={`/children/${selectedChild.id}/care-team`} className="dashboard-shortcut-link"><span className="shortcut-icon note">♧</span><strong>فريق الرعاية</strong><small>إدارة الوصول</small></Link>
           </div>
 
           <div className="quick-glance-card">
@@ -93,7 +119,7 @@ export default function DashboardPage() {
             <div className="card-title-row"><div><span className="soft-kicker">جدول اليوم</span><h2>كل ما يخص الطفل في مكان واحد</h2></div><span className="status-pill">MVP</span></div>
             <div className="timeline-placeholder">
               <span className="timeline-icon">✓</span>
-              <div><strong>تم إنشاء ملف الرعاية بنجاح</strong><p>المرحلة التالية ستضيف فريق الرعاية والصلاحيات، ثم تبدأ التقارير والأهداف بالظهور هنا.</p></div>
+              <div><strong>ملف الرعاية جاهز للتعاون</strong><p>يمكنك الآن إضافة فريق الرعاية وتحديد الصلاحيات ومدة الوصول لكل عضو.</p></div>
             </div>
           </div>
 

@@ -27,6 +27,10 @@ export default function ChildDetailPage() {
   if (error) return <div className="prototype-empty-card"><h2>تعذر فتح الملف</h2><p>{error}</p><Link className="btn btn-primary" to="/dashboard">العودة للرئيسية</Link></div>
   if (!child) return <div className="loading-row"><div className="spinner" /> جاري تحميل الملف...</div>
 
+  const accessLabel = child.access_role === 'care_provider'
+    ? 'مقدم رعاية'
+    : child.guardian_type === 'primary' ? 'ولي أمر رئيسي' : 'ولي أمر ثانوي'
+
   return (
     <section className="prototype-detail-page">
       <div className="prototype-profile-hero">
@@ -38,7 +42,7 @@ export default function ChildDetailPage() {
       <div className="profile-shortcuts">
         <div><span>▤</span><strong>التقارير</strong><small>قريبًا</small></div>
         <div><span>◎</span><strong>الأهداف</strong><small>قريبًا</small></div>
-        <div><span>♧</span><strong>فريق الرعاية</strong><small>المرحلة التالية</small></div>
+        <Link to={`/children/${child.id}/care-team`} className="profile-shortcut-link"><span>♧</span><strong>فريق الرعاية</strong><small>إدارة الفريق والصلاحيات</small></Link>
         <div><span>▦</span><strong>المواعيد</strong><small>قريبًا</small></div>
       </div>
 
@@ -46,7 +50,7 @@ export default function ChildDetailPage() {
         <div><span>تاريخ الميلاد</span><strong>{child.birth_date ? new Date(`${child.birth_date}T00:00:00`).toLocaleDateString('ar-SA') : '—'}</strong></div>
         <div><span>الجنس</span><strong>{displayGender(child.gender)}</strong></div>
         <div><span>الخدمات الحالية</span><strong>{child.services.length}</strong></div>
-        <div><span>صفة الحساب</span><strong>{child.guardian_type === 'primary' ? 'ولي أمر رئيسي' : 'ولي أمر ثانوي'}</strong></div>
+        <div><span>صفة الوصول</span><strong>{accessLabel}</strong></div>
       </div>
 
       <div className="prototype-detail-grid">
@@ -56,7 +60,7 @@ export default function ChildDetailPage() {
         <article className="prototype-detail-card lavender"><div className="detail-card-heading"><span>＋</span><h2>الخدمات</h2></div><Tags items={child.services} /></article>
       </div>
 
-      <div className="prototype-next-banner"><div><span className="soft-kicker">الخطوة القادمة</span><h2>فريق الرعاية والصلاحيات</h2><p>سنضيف الدعوات، الأدوار، الموافقات، مدة الوصول وإلغاء الصلاحية لهذا الملف.</p></div><span>02</span></div>
+      <div className="prototype-next-banner"><div><span className="soft-kicker">Milestone 01</span><h2>فريق الرعاية والصلاحيات أصبح متاحًا</h2><p>يمكن لولي الأمر دعوة مقدم رعاية أو ولي أمر ثانوي وتحديد صلاحياته ومدة الوصول قبل قبول الدعوة.</p></div><span>01</span></div>
     </section>
   )
 }

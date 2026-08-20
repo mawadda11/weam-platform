@@ -5,16 +5,18 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
 from app.api.deps import get_current_user, require_guardian
-from app.core.constants import GuardianType, UserRole
+from app.core.constants import CarePermission, GuardianType, UserRole
 from app.db.session import get_db
+from app.models.care_team import CareTeamMembership
 from app.models.child import CareProfile, Child, ChildIdentity, GuardianMembership
 from app.models.user import User
 from app.schemas.child import ChildCreate, ChildPublic, ChildUpdate
+from app.services.access import AccessGrant, membership_is_active, require_child_access, resolve_child_access
 
 router = APIRouter(prefix="/children", tags=["children"])
 
 
-def _serialize(child: Child, membership: GuardianMembership) -> ChildPublic:
+def _serialize(child: Child, grant: AccessGrant) -> ChildPublic:
     return ChildPublic(
         id=child.id,
         first_name=child.identity.first_name,
@@ -26,23 +28,15 @@ def _serialize(child: Child, membership: GuardianMembership) -> ChildPublic:
         support_requirements=list(child.care_profile.support_requirements or []),
         services=list(child.care_profile.services or []),
         summary=child.care_profile.summary,
-        guardian_type=membership.guardian_type,
+        guardian_type=grant.guardian_type,
+        access_role=grant.access_role,
+        access_permissions=list(grant.permissions),
         created_at=child.created_at,
         updated_at=child.updated_at,
     )
 
 
-def _load_child_for_guardian(db: Session, child_id: str, user_id: str) -> tuple[Child, GuardianMembership]:
-    membership = db.scalar(
-        select(GuardianMembership).where(
-            GuardianMembership.child_id == child_id,
-            GuardianMembership.guardian_user_id == user_id,
-        )
-    )
-    if not membership:
-        # 404 avoids leaking whether another family's child exists.
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Child profile not found")
-
+def _load_child(db: Session, child_id: str) -> Child:
     child = db.scalar(
         select(Child)
         .options(joinedload(Child.identity), joinedload(Child.care_profile))
@@ -50,7 +44,7 @@ def _load_child_for_guardian(db: Session, child_id: str, user_id: str) -> tuple[
     )
     if not child:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Child profile not found")
-    return child, membership
+    return child
 
 
 @router.post("", response_model=ChildPublic, status_code=status.HTTP_201_CREATED)
@@ -77,12 +71,15 @@ def create_child(
         child=child,
         guardian_user_id=user.id,
         guardian_type=GuardianType.PRIMARY.value,
+        role_label="ولي أمر رئيسي",
+        permissions=[permission.value for permission in CarePermission],
     )
     db.add_all([child, membership])
     db.commit()
 
-    loaded_child, loaded_membership = _load_child_for_guardian(db, child.id, user.id)
-    return _serialize(loaded_child, loaded_membership)
+    grant = resolve_child_access(db, child.id, user)
+    assert grant is not None
+    return _serialize(_load_child(db, child.id), grant)
 
 
 @router.get("", response_model=list[ChildPublic])
@@ -90,40 +87,50 @@ def list_children(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
 ) -> list[ChildPublic]:
-    # Care-provider child access will be introduced with the care-team permission feature.
-    if user.role != UserRole.GUARDIAN.value:
+    child_ids: list[str] = []
+    if user.role == UserRole.GUARDIAN.value:
+        memberships = db.scalars(
+            select(GuardianMembership)
+            .where(GuardianMembership.guardian_user_id == user.id)
+            .order_by(GuardianMembership.created_at.asc())
+        ).all()
+        child_ids = [m.child_id for m in memberships if membership_is_active(m.access_status, m.expires_at)]
+    elif user.role == UserRole.CARE_PROVIDER.value:
+        memberships = db.scalars(
+            select(CareTeamMembership)
+            .where(CareTeamMembership.user_id == user.id)
+            .order_by(CareTeamMembership.created_at.asc())
+        ).all()
+        child_ids = [m.child_id for m in memberships if membership_is_active(m.access_status, m.expires_at)]
+    else:
         return []
 
-    memberships = db.scalars(
-        select(GuardianMembership)
-        .where(GuardianMembership.guardian_user_id == user.id)
-        .order_by(GuardianMembership.created_at.asc())
-    ).all()
-    if not memberships:
+    if not child_ids:
         return []
 
-    child_ids = [membership.child_id for membership in memberships]
     children = db.scalars(
         select(Child)
         .options(joinedload(Child.identity), joinedload(Child.care_profile))
         .where(Child.id.in_(child_ids))
     ).unique().all()
     child_by_id = {child.id: child for child in children}
-    return [
-        _serialize(child_by_id[membership.child_id], membership)
-        for membership in memberships
-        if membership.child_id in child_by_id
-    ]
+    output: list[ChildPublic] = []
+    for child_id in child_ids:
+        child = child_by_id.get(child_id)
+        grant = resolve_child_access(db, child_id, user)
+        if child and grant and grant.allows(CarePermission.VIEW_PROFILE.value):
+            output.append(_serialize(child, grant))
+    return output
 
 
 @router.get("/{child_id}", response_model=ChildPublic)
 def get_child(
     child_id: str,
     db: Session = Depends(get_db),
-    user: User = Depends(require_guardian),
+    user: User = Depends(get_current_user),
 ) -> ChildPublic:
-    child, membership = _load_child_for_guardian(db, child_id, user.id)
-    return _serialize(child, membership)
+    grant = require_child_access(db, child_id, user, CarePermission.VIEW_PROFILE.value)
+    return _serialize(_load_child(db, child_id), grant)
 
 
 @router.patch("/{child_id}", response_model=ChildPublic)
@@ -131,14 +138,13 @@ def update_child(
     child_id: str,
     payload: ChildUpdate,
     db: Session = Depends(get_db),
-    user: User = Depends(require_guardian),
+    user: User = Depends(get_current_user),
 ) -> ChildPublic:
-    child, membership = _load_child_for_guardian(db, child_id, user.id)
-    if membership.guardian_type != GuardianType.PRIMARY.value and "manage_child" not in (
-        membership.permissions or []
-    ):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permission")
+    grant = require_child_access(db, child_id, user, CarePermission.MANAGE_CHILD.value)
+    if grant.access_role != "guardian":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Guardian account required")
 
+    child = _load_child(db, child_id)
     values = payload.model_dump(exclude_unset=True)
     identity_fields = {"first_name", "preferred_name", "birth_date", "gender"}
     care_fields = {"conditions", "needs", "support_requirements", "services", "summary"}
@@ -157,5 +163,5 @@ def update_child(
 
     db.add(child)
     db.commit()
-    loaded_child, loaded_membership = _load_child_for_guardian(db, child.id, user.id)
-    return _serialize(loaded_child, loaded_membership)
+    updated_grant = require_child_access(db, child_id, user, CarePermission.VIEW_PROFILE.value)
+    return _serialize(_load_child(db, child.id), updated_grant)
