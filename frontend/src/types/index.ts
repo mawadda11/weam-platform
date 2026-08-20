@@ -150,6 +150,31 @@ export interface ReportAIAnalysis {
   updated_at: string
 }
 
+export interface VoiceNote {
+  id: string
+  child_id: string
+  title: string
+  original_filename: string
+  content_type: string
+  size_bytes: number
+  duration_seconds?: number | null
+  transcription_status: 'not_started' | 'completed' | 'failed'
+  review_status: 'not_started' | 'draft' | 'approved' | 'rejected'
+  transcript_draft?: string | null
+  transcript_final?: string | null
+  transcript_language?: string | null
+  stt_provider?: string | null
+  stt_model?: string | null
+  error_message?: string | null
+  created_by_user_id: string
+  created_by_name: string
+  reviewed_by_user_id?: string | null
+  reviewed_by_name?: string | null
+  reviewed_at?: string | null
+  created_at: string
+  updated_at: string
+}
+
 export type GoalStatus = 'new' | 'in_progress' | 'completed' | 'paused'
 
 export interface GoalUpdate {

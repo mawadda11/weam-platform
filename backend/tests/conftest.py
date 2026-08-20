@@ -3,7 +3,6 @@ import shutil
 import tempfile
 from pathlib import Path
 
-# Cross-platform SQLite path for tests (Windows/macOS/Linux).
 TEST_DB = (Path(tempfile.gettempdir()) / "weam_auth_child_test.db").resolve()
 TEST_STORAGE = (Path(tempfile.gettempdir()) / "weam_report_test_storage").resolve()
 if TEST_DB.exists():
@@ -16,7 +15,9 @@ os.environ["WEAM_JWT_SECRET"] = "test-only-secret-32-bytes-minimum-123456"
 os.environ["WEAM_CREATE_TABLES_ON_STARTUP"] = "false"
 os.environ["WEAM_STORAGE_ROOT"] = TEST_STORAGE.as_posix()
 os.environ["WEAM_MAX_REPORT_UPLOAD_MB"] = "2"
+os.environ["WEAM_MAX_VOICE_UPLOAD_MB"] = "2"
 os.environ["WEAM_AI_PROVIDER"] = "mock"
+os.environ["WEAM_STT_PROVIDER"] = "mock"
 
 import pytest
 from fastapi.testclient import TestClient

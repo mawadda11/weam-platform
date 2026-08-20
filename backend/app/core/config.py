@@ -16,20 +16,25 @@ class Settings(BaseSettings):
     refresh_token_expire_days: int = 14
 
     google_client_id: str | None = None
-    # Kept for backwards-compatible local .env files. Alembic is now the only schema authority.
     create_tables_on_startup: bool = False
 
     storage_root: str = ".weam_storage"
     max_report_upload_mb: int = 15
+    max_voice_upload_mb: int = 25
 
-    # Provider-independent AI gateway. "mock" is deterministic and safe for
-    # local development/tests. Set provider=gemini plus an API key to use a
-    # real multimodal model without changing application code.
     ai_provider: str = "mock"
     ai_api_key: str | None = None
     ai_model: str = "gemini-2.5-flash"
     ai_timeout_seconds: int = 60
     ai_max_inline_mb: int = 8
+
+    # Provider-independent speech-to-text boundary.
+    # "mock" keeps local development deterministic until a production
+    # provider is configured.
+    stt_provider: str = "mock"
+    stt_api_key: str | None = None
+    stt_model: str = "provider-default"
+    stt_language: str = "ar"
 
     model_config = SettingsConfigDict(
         env_file=".env",

@@ -39,6 +39,8 @@ class CarePermission(StrEnum):
     VIEW_GOALS = "view_goals"
     MANAGE_GOALS = "manage_goals"
     VIEW_TIMELINE = "view_timeline"
+    VIEW_VOICE_NOTES = "view_voice_notes"
+    CREATE_VOICE_NOTES = "create_voice_notes"
     MESSAGE_TEAM = "message_team"
     MANAGE_CHILD = "manage_child"
     MANAGE_CARE_TEAM = "manage_care_team"
