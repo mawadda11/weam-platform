@@ -218,3 +218,30 @@ export interface TimelineEvent {
   occurred_at: string
   data: Record<string, unknown>
 }
+
+
+export interface ConversationParticipant {
+  user_id: string
+  full_name: string
+  role_label?: string | null
+}
+
+export interface ChatMessage {
+  id: string
+  conversation_id: string
+  sender_user_id: string
+  sender_name: string
+  body: string
+  created_at: string
+}
+
+export interface CareConversation {
+  id: string
+  child_id: string
+  kind: 'direct' | 'group'
+  title: string
+  participants: ConversationParticipant[]
+  last_message?: ChatMessage | null
+  created_at: string
+  updated_at: string
+}

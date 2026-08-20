@@ -36,6 +36,7 @@ export default function ChildDetailPage() {
   const canViewGoals = primary || child.access_permissions.includes('view_goals')
   const canViewTimeline = primary || child.access_permissions.includes('view_timeline')
   const canViewVoice = primary || child.access_permissions.includes('view_voice_notes')
+  const canMessageTeam = primary || child.access_permissions.includes('message_team')
 
   return (
     <section className="prototype-detail-page">
@@ -51,6 +52,7 @@ export default function ChildDetailPage() {
         {canViewCareTeam ? <Link to={`/children/${child.id}/care-team`} className="profile-shortcut-link"><span>♧</span><strong>فريق الرعاية</strong><small>الفريق والصلاحيات</small></Link> : <div><span>♧</span><strong>فريق الرعاية</strong><small>غير مصرح</small></div>}
         {canViewTimeline ? <Link to={`/children/${child.id}/timeline`} className="profile-shortcut-link"><span>↻</span><strong>الخط الزمني</strong><small>رحلة الطفل كاملة</small></Link> : <div><span>↻</span><strong>الخط الزمني</strong><small>غير مصرح</small></div>}
         {canViewVoice ? <Link to={`/children/${child.id}/voice-notes`} className="profile-shortcut-link"><span>🎙</span><strong>ملاحظات صوتية</strong><small>تسجيل وتفريغ صوتي</small></Link> : <div><span>🎙</span><strong>ملاحظات صوتية</strong><small>غير مصرح</small></div>}
+        {canMessageTeam ? <Link to={`/children/${child.id}/communication`} className="profile-shortcut-link"><span>💬</span><strong>التواصل</strong><small>فردي ومجموعات الفريق</small></Link> : <div><span>💬</span><strong>التواصل</strong><small>غير مصرح</small></div>}
       </div>
 
       <div className="prototype-metric-grid">
