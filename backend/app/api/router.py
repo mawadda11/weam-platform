@@ -8,6 +8,7 @@ from app.api.routes.health import router as health_router
 from app.api.routes.report_ai import router as report_ai_router
 from app.api.routes.reports import router as reports_router
 from app.api.routes.timeline import router as timeline_router
+from app.api.routes.voice_notes import router as voice_notes_router
 
 api_router = APIRouter()
 api_router.include_router(health_router)
@@ -18,3 +19,4 @@ api_router.include_router(reports_router)
 api_router.include_router(report_ai_router)
 api_router.include_router(goals_router)
 api_router.include_router(timeline_router)
+api_router.include_router(voice_notes_router)

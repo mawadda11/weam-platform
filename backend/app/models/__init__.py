@@ -4,6 +4,7 @@ from app.models.goal import Goal, GoalUpdate
 from app.models.report import Report, ReportVersion
 from app.models.report_ai import ReportAIAnalysis
 from app.models.user import User
+from app.models.voice_note import VoiceNote
 
 __all__ = [
     "User",
@@ -19,4 +20,5 @@ __all__ = [
     "ReportAIAnalysis",
     "Goal",
     "GoalUpdate",
+    "VoiceNote",
 ]
