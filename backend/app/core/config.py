@@ -22,6 +22,15 @@ class Settings(BaseSettings):
     storage_root: str = ".weam_storage"
     max_report_upload_mb: int = 15
 
+    # Provider-independent AI gateway. "mock" is deterministic and safe for
+    # local development/tests. Set provider=gemini plus an API key to use a
+    # real multimodal model without changing application code.
+    ai_provider: str = "mock"
+    ai_api_key: str | None = None
+    ai_model: str = "gemini-2.5-flash"
+    ai_timeout_seconds: int = 60
+    ai_max_inline_mb: int = 8
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_prefix="WEAM_",

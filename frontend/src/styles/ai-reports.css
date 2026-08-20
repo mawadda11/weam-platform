@@ -1,0 +1,66 @@
+.ai-report-page { display:grid; gap:16px; }
+.ai-report-hero { display:flex; justify-content:space-between; gap:28px; align-items:center; padding:clamp(25px,4vw,38px); border-radius:28px; border:1px solid #dceee9; background:linear-gradient(115deg,#eaf8f5 0%,#fbfefd 55%,#fff8e8 115%); }
+.ai-report-back { display:inline-flex; color:var(--teal-dark); font-size:11px; font-weight:900; margin-bottom:12px; }
+.ai-report-hero h1 { margin:7px 0 8px; color:#2c454c; font-size:clamp(32px,4vw,48px); }
+.ai-report-hero p { margin:0; max-width:760px; color:var(--muted); line-height:1.8; }
+.ai-report-hero-actions { display:grid; justify-items:center; gap:11px; min-width:230px; }
+.ai-draft-badge { border-radius:999px; padding:7px 11px; background:#fff7dc; color:#a47719; font-size:10px; font-weight:900; white-space:nowrap; }
+
+.ai-safety-banner,
+.ai-development-banner { display:flex; gap:12px; align-items:center; padding:15px 17px; border-radius:18px; }
+.ai-safety-banner { background:#f7fbfa; border:1px solid #dfece9; }
+.ai-development-banner { background:#fff9e9; border:1px solid #f2e6bf; }
+.ai-safety-banner > span,
+.ai-development-banner > span { width:42px; height:42px; border-radius:14px; display:grid; place-items:center; background:#fff; flex:0 0 auto; }
+.ai-safety-banner strong,
+.ai-development-banner strong { color:#36535a; }
+.ai-safety-banner p,
+.ai-development-banner p { margin:3px 0 0; color:#718287; font-size:11px; line-height:1.7; }
+
+.ai-analysis-list { display:grid; gap:14px; }
+.ai-analysis-card { background:#fff; border:1px solid #e0ece9; border-radius:25px; padding:clamp(20px,3vw,28px); box-shadow:0 8px 28px rgba(53,96,101,.045); }
+.ai-analysis-card.approved { border-color:#cfe9dc; }
+.ai-analysis-card.rejected { opacity:.78; }
+.ai-analysis-head { display:flex; justify-content:space-between; gap:18px; align-items:flex-start; border-bottom:1px solid #edf2f1; padding-bottom:14px; margin-bottom:16px; }
+.ai-analysis-head h2 { margin:7px 0 3px; font-size:21px; color:#304b52; }
+.ai-analysis-head p,.ai-analysis-head time { color:#92a0a3; font-size:9px; }
+.ai-analysis-badges { display:flex; gap:6px; flex-wrap:wrap; }
+.ai-analysis-badges span { padding:5px 8px; border-radius:999px; background:#eff7f5; color:#557275; font-size:9px; font-weight:800; }
+.ai-analysis-badges .review.draft { background:#fff4d7; color:#a4781d; }
+.ai-analysis-badges .review.approved { background:#e7f7ef; color:#2e8b5e; }
+.ai-analysis-badges .review.rejected { background:#f9eaea; color:#a65c5c; }
+
+.ai-summary-box { border-radius:20px; padding:18px 20px; background:linear-gradient(135deg,#f0faf7,#fffaf0); border:1px solid #e0ece9; }
+.ai-summary-box > span { color:var(--teal-dark); font-size:10px; font-weight:900; }
+.ai-summary-box p { margin:7px 0 0; color:#405b61; line-height:1.85; }
+
+.ai-ltr-content { text-align:left; unicode-bidi:plaintext; }
+.ai-result-section li[dir="ltr"] { padding-left:2px; }
+.ai-result-section li[dir="rtl"] { text-align:right; }
+
+.ai-result-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:11px; margin-top:12px; }
+.ai-result-section { border:1px solid #e8efed; background:#fbfdfc; border-radius:17px; padding:15px 17px; }
+.ai-result-section h3 { margin:0 0 8px; font-size:14px; color:#36535a; }
+.ai-result-section ul { margin:0; padding-right:18px; color:#60767b; font-size:12px; line-height:1.8; }
+.ai-result-section ul li[dir="ltr"] { margin-left:18px; margin-right:0; }
+.ai-result-section p { margin:0; }
+.ai-safety-note { margin-top:12px; padding:11px 14px; border-radius:14px; background:#fff8e7; color:#8d7438; font-size:10px; }
+.ai-card-actions { display:flex; justify-content:flex-start; margin-top:14px; }
+.ai-reviewed-by { margin-top:14px; color:#53756e; font-size:10px; font-weight:800; }
+
+.ai-review-editor { display:grid; gap:13px; }
+.ai-review-editor h3 { margin:0; color:#345158; }
+.ai-review-editor label { display:grid; gap:6px; color:#49646a; font-size:11px; font-weight:800; }
+.ai-review-editor textarea { width:100%; resize:vertical; border:1px solid #dce8e5; border-radius:15px; padding:11px 13px; color:#324c52; background:#fff; line-height:1.65; }
+.ai-review-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.ai-review-actions { display:flex; flex-wrap:wrap; gap:9px; }
+.ai-failed-box { border-radius:17px; background:#fff0f0; border:1px solid #f1d7d7; padding:15px 17px; color:#8d5555; }
+.ai-failed-box p { margin:4px 0 0; }
+.ai-provider-note { text-align:center; color:#8d9b9e; font-size:9px; padding:8px; }
+
+@media (max-width:760px) {
+  .ai-report-hero { flex-direction:column; align-items:stretch; }
+  .ai-report-hero-actions { min-width:0; justify-items:stretch; }
+  .ai-result-grid,.ai-review-grid { grid-template-columns:1fr; }
+  .ai-analysis-head { flex-direction:column; }
+}
