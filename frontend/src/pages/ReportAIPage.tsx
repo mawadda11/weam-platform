@@ -55,6 +55,21 @@ function AnalysisList({ title, items }: { title: string; items: string[] }) {
   )
 }
 
+
+function providerDisplay(provider: string, model: string) {
+  if (provider === 'gemini' && model === 'gemini-3.6-flash') {
+    return 'Gemini 3.6 · النموذج الأساسي'
+  }
+  if (provider === 'gemini' && model === 'gemini-3.5-flash') {
+    return 'Gemini 3.5 · النموذج الاحتياطي'
+  }
+  if (provider === 'local_fallback' || provider === 'mock') {
+    return 'تحليل محلي · احتياطي'
+  }
+  return `${provider} · ${model}`
+}
+
+
 export default function ReportAIPage() {
   const { reportId } = useParams()
   const [report, setReport] = useState<ChildReport | null>(null)
@@ -151,9 +166,7 @@ export default function ReportAIPage() {
 
   const providerLabel = useMemo(() => {
     if (!latest) return ''
-    return latest.provider === 'mock'
-      ? 'وضع التطوير المحلي — لا يمثل جودة نموذج الذكاء الاصطناعي النهائي.'
-      : `${latest.provider} · ${latest.model}`
+    return providerDisplay(latest.provider, latest.model)
   }, [latest])
 
   if (loading) {
@@ -212,15 +225,19 @@ export default function ReportAIPage() {
         </div>
       </div>
 
-      {latest?.provider === 'mock' && (
+      {(latest?.provider === 'local_fallback' || latest?.provider === 'mock') && (
         <div className="ai-development-banner">
           <span>ℹ</span>
           <div>
-            <strong>وضع التطوير المحلي</strong>
+            <strong>
+              {latest.provider === 'local_fallback'
+                ? 'تم استخدام التحليل المحلي الاحتياطي'
+                : 'وضع التطوير المحلي'}
+            </strong>
             <p>
-              النتائج الحالية مخصصة لاختبار سير العمل والواجهة، وليست مقياسًا
-              لجودة نموذج الذكاء الاصطناعي النهائي. عند ربط Gemini سنختبر جودة
-              الفهم والترجمة والاستخراج الفعلي.
+              {latest.provider === 'local_fallback'
+                ? 'تعذر استخدام نماذج Gemini مؤقتًا، لذلك أكمل وئام التحليل محليًا. يمكنك إعادة التحليل لاحقًا، وسيجرب Gemini 3.6 تلقائيًا من جديد.'
+                : 'هذه النتيجة محلية ومخصصة لاختبار سير العمل.'}
             </p>
           </div>
         </div>
@@ -277,9 +294,7 @@ export default function ReportAIPage() {
                         : `تحليل سابق ${analyses.length - index}`}
                     </h2>
                     <p>
-                      {analysis.provider === 'mock'
-                        ? 'وضع التطوير المحلي'
-                        : `${analysis.provider} · ${analysis.model}`}
+                      {providerDisplay(analysis.provider, analysis.model)}
                       {' · '}بواسطة {analysis.created_by_name}
                     </p>
                   </div>

@@ -245,3 +245,36 @@ export interface CareConversation {
   created_at: string
   updated_at: string
 }
+
+
+export interface AssistantSource {
+  index: number
+  source_type: 'profile' | 'report' | 'goal' | 'goal_update' | 'voice' | string
+  source_id: string
+  title: string
+  snippet: string
+  occurred_at?: string | null
+}
+
+export interface AssistantMessage {
+  id: string
+  role: 'user' | 'assistant'
+  content: string
+  sources: AssistantSource[]
+  created_at: string
+}
+
+export interface AssistantThread {
+  id: string
+  child_id: string
+  title: string
+  created_at: string
+  updated_at: string
+  last_message?: AssistantMessage | null
+}
+
+export interface AssistantAnswer {
+  thread: AssistantThread
+  user_message: AssistantMessage
+  assistant_message: AssistantMessage
+}

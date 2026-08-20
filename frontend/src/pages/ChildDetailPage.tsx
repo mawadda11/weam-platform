@@ -53,6 +53,7 @@ export default function ChildDetailPage() {
         {canViewTimeline ? <Link to={`/children/${child.id}/timeline`} className="profile-shortcut-link"><span>↻</span><strong>الخط الزمني</strong><small>رحلة الطفل كاملة</small></Link> : <div><span>↻</span><strong>الخط الزمني</strong><small>غير مصرح</small></div>}
         {canViewVoice ? <Link to={`/children/${child.id}/voice-notes`} className="profile-shortcut-link"><span>🎙</span><strong>ملاحظات صوتية</strong><small>تسجيل وتفريغ صوتي</small></Link> : <div><span>🎙</span><strong>ملاحظات صوتية</strong><small>غير مصرح</small></div>}
         {canMessageTeam ? <Link to={`/children/${child.id}/communication`} className="profile-shortcut-link"><span>💬</span><strong>التواصل</strong><small>فردي ومجموعات الفريق</small></Link> : <div><span>💬</span><strong>التواصل</strong><small>غير مصرح</small></div>}
+        <Link to={`/children/${child.id}/assistant`} className="profile-shortcut-link"><span>✦</span><strong>مساعد وئام</strong><small>إجابات من مصادر الملف</small></Link>
       </div>
 
       <div className="prototype-metric-grid">

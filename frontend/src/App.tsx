@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import AppShell from './components/AppShell'
 import ProtectedRoute from './components/ProtectedRoute'
+import AiAssistantPage from './pages/AiAssistantPage'
 import CareTeamPage from './pages/CareTeamPage'
 import CommunicationHubPage from './pages/CommunicationHubPage'
 import ChildDetailPage from './pages/ChildDetailPage'
@@ -35,6 +36,7 @@ export default function App() {
           <Route path="/children/:childId/timeline" element={<TimelinePage />} />
           <Route path="/children/:childId/voice-notes" element={<VoiceNotesPage />} />
           <Route path="/children/:childId/communication" element={<CommunicationHubPage />} />
+          <Route path="/children/:childId/assistant" element={<AiAssistantPage />} />
           <Route path="/reports/:reportId/ai" element={<ReportAIPage />} />
         </Route>
       </Route>

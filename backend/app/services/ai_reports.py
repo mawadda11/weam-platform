@@ -7,10 +7,10 @@ from dataclasses import dataclass
 from io import BytesIO
 from pathlib import Path
 
-import httpx
 from pypdf import PdfReader
 
 from app.core.config import get_settings
+from app.services.gemini_failover import GeminiFailoverError, call_gemini_with_failover
 
 
 class AIReportError(RuntimeError):
@@ -65,7 +65,7 @@ def _local_mock_analysis(
 ) -> dict:
     text = ""
     limitations: list[str] = [
-        "تم إنشاء هذه المسودة في وضع التطوير المحلي، ويجب مراجعتها بشريًا قبل الاعتماد."
+        "تم استخدام التحليل المحلي الاحتياطي، ويجب مراجعة المسودة بشريًا قبل الاعتماد."
     ]
     if content_type == "application/pdf":
         try:
@@ -74,7 +74,7 @@ def _local_mock_analysis(
             limitations.append(f"تعذر استخراج نص PDF محليًا: {exc}")
     else:
         limitations.append(
-            "وضع التطوير المحلي لا يجري OCR للصور؛ استخدمي مزود AI فعلي لتحليل الصور."
+            "التحليل المحلي الاحتياطي لا يجري OCR للصور؛ أعيدي التحليل لاحقًا عند توفر Gemini."
         )
 
     lines = _clean_lines(text)
@@ -173,8 +173,10 @@ def _gemini_analysis(
 - استخرج فقط ما يدعمه الملف بوضوح.
 - لا تضف تشخيصًا جديدًا، ولا تصف دواءً، ولا تغيّر خطة علاج.
 - إذا لم تجد المعلومة اترك القائمة فارغة بدل التخمين.
-- اجعل الملخص بالعربية الواضحة حتى لو كان المصدر بلغة أخرى.
-- evidence يجب أن يحتوي مقتطفات قصيرة جدًا من المصدر تدعم أهم النتائج.
+- اكتب الملخص والنتائج والاحتياجات والتوصيات وإجراءات المتابعة وذكر الأهداف بالعربية الواضحة حتى لو كان المصدر بلغة أخرى.
+- evidence فقط يمكن أن يبقى بلغة المصدر، ويجب أن يحتوي مقتطفات قصيرة جدًا تدعم أهم النتائج.
+- لا تكرر نفس العنصر في الاحتياجات والتوصيات إلا إذا كان التقرير نفسه يقدمه بالمعنيين.
+- تجاهل عبارات الاختبار والبيانات الوصفية مثل Synthetic test document إلا إذا كانت ضرورية لفهم حدود المصدر.
 - أعد JSON فقط بالمفاتيح:
 summary, key_findings, needs, recommendations, follow_up_actions,
 goal_mentions, source_language, evidence, limitations, safety_note.
@@ -197,34 +199,35 @@ goal_mentions, source_language, evidence, limitations, safety_note.
             }
         ],
         "generationConfig": {
-            "temperature": 0.1,
             "responseMimeType": "application/json",
+            "maxOutputTokens": 4000,
         },
     }
-    url = (
-        "https://generativelanguage.googleapis.com/v1beta/models/"
-        f"{settings.ai_model}:generateContent"
-    )
+
+    primary_model = settings.ai_model.strip() or "gemini-3.6-flash"
+    if primary_model == "gemini-2.5-flash":
+        primary_model = "gemini-3.6-flash"
+
     try:
-        response = httpx.post(
-            url,
-            params={"key": settings.ai_api_key},
-            json=body,
-            timeout=settings.ai_timeout_seconds,
+        response = call_gemini_with_failover(
+            api_key=settings.ai_api_key.strip(),
+            primary_model=primary_model,
+            body=body,
+            timeout_seconds=settings.ai_timeout_seconds,
         )
-        response.raise_for_status()
-        payload = response.json()
-        text = payload["candidates"][0]["content"]["parts"][0]["text"]
+        text = response.payload["candidates"][0]["content"]["parts"][0]["text"]
         parsed = json.loads(text)
+    except GeminiFailoverError:
+        raise
     except Exception as exc:
-        raise AIReportError(f"AI provider request failed: {exc}") from exc
+        raise AIReportError(f"AI provider returned an invalid response: {exc}") from exc
 
     if not isinstance(parsed, dict):
         raise AIReportError("AI provider returned an invalid structured response")
 
     return AIReportResult(
         provider="gemini",
-        model=settings.ai_model,
+        model=response.model,
         data=_normalize_result(parsed),
     )
 
@@ -240,27 +243,42 @@ def analyze_report_file(
     settings = get_settings()
     provider = settings.ai_provider.strip().lower()
 
-    if provider == "mock":
-        return AIReportResult(
-            provider="mock",
-            model="weam-local-structured-v1",
-            data=_normalize_result(
-                _local_mock_analysis(
-                    path=path,
-                    content_type=content_type,
-                    report_title=report_title,
-                    report_type=report_type,
-                    source_label=source_label,
-                )
-            ),
+    def local_result(*, fallback_reason: str | None = None) -> AIReportResult:
+        data = _normalize_result(
+            _local_mock_analysis(
+                path=path,
+                content_type=content_type,
+                report_title=report_title,
+                report_type=report_type,
+                source_label=source_label,
+            )
         )
+        if fallback_reason:
+            limitations = list(data.get("limitations") or [])
+            limitations.insert(
+                0,
+                "تم التحويل تلقائيًا إلى التحليل المحلي لأن نماذج Gemini لم تكن متاحة مؤقتًا.",
+            )
+            data["limitations"] = limitations[:12]
+        return AIReportResult(
+            provider="local_fallback" if fallback_reason else "mock",
+            model="weam-local-structured-v1",
+            data=data,
+        )
+
+    if provider == "mock":
+        return local_result()
 
     if provider == "gemini":
-        return _gemini_analysis(
-            path=path,
-            content_type=content_type,
-            report_title=report_title,
-            report_type=report_type,
-        )
+        try:
+            return _gemini_analysis(
+                path=path,
+                content_type=content_type,
+                report_title=report_title,
+                report_type=report_type,
+            )
+        except GeminiFailoverError as exc:
+            return local_result(fallback_reason=str(exc))
 
     raise AIReportError(f"Unsupported AI provider: {provider}")
+
