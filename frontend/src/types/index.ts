@@ -83,3 +83,35 @@ export interface CareTeamOverview {
   members: CareTeamMember[]
   pending_invitations: CareInvitation[]
 }
+
+export type ReportVisibility = 'care_team' | 'restricted'
+
+export interface ReportVersion {
+  id: string
+  version_number: number
+  original_filename: string
+  content_type: string
+  size_bytes: number
+  sha256: string
+  notes?: string | null
+  uploaded_by_user_id: string
+  uploaded_by_name: string
+  created_at: string
+}
+
+export interface ChildReport {
+  id: string
+  child_id: string
+  title: string
+  report_type: string
+  report_date?: string | null
+  source_label?: string | null
+  visibility: ReportVisibility
+  allowed_user_ids: string[]
+  created_by_user_id: string
+  created_by_name: string
+  is_archived: boolean
+  created_at: string
+  updated_at: string
+  versions: ReportVersion[]
+}

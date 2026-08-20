@@ -43,3 +43,8 @@ class CarePermission(StrEnum):
     MANAGE_CHILD = "manage_child"
     MANAGE_CARE_TEAM = "manage_care_team"
     MANAGE_PERMISSIONS = "manage_permissions"
+
+
+class ReportVisibility(StrEnum):
+    CARE_TEAM = "care_team"
+    RESTRICTED = "restricted"

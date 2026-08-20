@@ -30,6 +30,8 @@ export default function ChildDetailPage() {
   const accessLabel = child.access_role === 'care_provider'
     ? 'مقدم رعاية'
     : child.guardian_type === 'primary' ? 'ولي أمر رئيسي' : 'ولي أمر ثانوي'
+  const canViewReports = child.guardian_type === 'primary' || child.access_permissions.includes('view_reports')
+  const canViewCareTeam = child.guardian_type === 'primary' || child.access_permissions.includes('view_care_team')
 
   return (
     <section className="prototype-detail-page">
@@ -40,9 +42,9 @@ export default function ChildDetailPage() {
       </div>
 
       <div className="profile-shortcuts">
-        <div><span>▤</span><strong>التقارير</strong><small>قريبًا</small></div>
-        <div><span>◎</span><strong>الأهداف</strong><small>قريبًا</small></div>
-        <Link to={`/children/${child.id}/care-team`} className="profile-shortcut-link"><span>♧</span><strong>فريق الرعاية</strong><small>إدارة الفريق والصلاحيات</small></Link>
+        {canViewReports ? <Link to={`/children/${child.id}/reports`} className="profile-shortcut-link"><span>▤</span><strong>التقارير</strong><small>الملفات وسجل النسخ</small></Link> : <div><span>▤</span><strong>التقارير</strong><small>غير مصرح</small></div>}
+        <div><span>◎</span><strong>الأهداف</strong><small>الخطوة التالية</small></div>
+        {canViewCareTeam ? <Link to={`/children/${child.id}/care-team`} className="profile-shortcut-link"><span>♧</span><strong>فريق الرعاية</strong><small>إدارة الفريق والصلاحيات</small></Link> : <div><span>♧</span><strong>فريق الرعاية</strong><small>غير مصرح</small></div>}
         <div><span>▦</span><strong>المواعيد</strong><small>قريبًا</small></div>
       </div>
 
@@ -60,7 +62,7 @@ export default function ChildDetailPage() {
         <article className="prototype-detail-card lavender"><div className="detail-card-heading"><span>＋</span><h2>الخدمات</h2></div><Tags items={child.services} /></article>
       </div>
 
-      <div className="prototype-next-banner"><div><span className="soft-kicker">Milestone 01</span><h2>فريق الرعاية والصلاحيات أصبح متاحًا</h2><p>يمكن لولي الأمر دعوة مقدم رعاية أو ولي أمر ثانوي وتحديد صلاحياته ومدة الوصول قبل قبول الدعوة.</p></div><span>01</span></div>
+      <div className="prototype-next-banner"><div><span className="soft-kicker">Milestone 01</span><h2>التقارير أصبحت جزءًا من ملف الرعاية</h2><p>يمكن حفظ PDF والصور، الاحتفاظ بكل نسخة سابقة، وتطبيق صلاحيات فريق الرعاية أو تقييد تقرير بعينه لأعضاء محددين.</p></div><span>02</span></div>
     </section>
   )
 }

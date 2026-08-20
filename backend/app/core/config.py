@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     environment: str = "development"
     api_v1_prefix: str = "/api/v1"
     frontend_origins: str = "http://localhost:5173"
-    database_url: str = "postgresql+psycopg://weam:weam@localhost:5432/weam"
+    database_url: str = "postgresql+psycopg://weam:weam@localhost:5433/weam"
 
     jwt_secret: str = "replace-me-locally"
     jwt_algorithm: str = "HS256"
@@ -16,7 +16,11 @@ class Settings(BaseSettings):
     refresh_token_expire_days: int = 14
 
     google_client_id: str | None = None
-    create_tables_on_startup: bool = True
+    # Kept for backwards-compatible local .env files. Alembic is now the only schema authority.
+    create_tables_on_startup: bool = False
+
+    storage_root: str = ".weam_storage"
+    max_report_upload_mb: int = 15
 
     model_config = SettingsConfigDict(
         env_file=".env",
