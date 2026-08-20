@@ -1,0 +1,14 @@
+{
+  "name": "وئام - Weam",
+  "short_name": "وئام",
+  "description": "منصة تنسيق رحلة رعاية الطفل",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f7f4",
+  "theme_color": "#486f69",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    { "src": "/weam-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
