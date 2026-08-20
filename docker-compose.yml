@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: weam
+      POSTGRES_USER: weam
+      POSTGRES_PASSWORD: weam
+    ports:
+      - "5432:5432"
+    volumes:
+      - weam_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U weam -d weam"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  weam_postgres_data:
