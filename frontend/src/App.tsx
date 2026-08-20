@@ -10,6 +10,7 @@ import InvitationsPage from './pages/InvitationsPage'
 import LoginPage from './pages/LoginPage'
 import NewChildPage from './pages/NewChildPage'
 import RegisterPage from './pages/RegisterPage'
+import ReportAIPage from './pages/ReportAIPage'
 import ReportsPage from './pages/ReportsPage'
 import TimelinePage from './pages/TimelinePage'
 
@@ -30,6 +31,7 @@ export default function App() {
           <Route path="/children/:childId/reports" element={<ReportsPage />} />
           <Route path="/children/:childId/goals" element={<GoalsPage />} />
           <Route path="/children/:childId/timeline" element={<TimelinePage />} />
+          <Route path="/reports/:reportId/ai" element={<ReportAIPage />} />
         </Route>
       </Route>
 

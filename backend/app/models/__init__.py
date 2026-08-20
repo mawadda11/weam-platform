@@ -2,6 +2,7 @@ from app.models.care_team import AccessAuditLog, CareInvitation, CareTeamMembers
 from app.models.child import CareProfile, Child, ChildIdentity, GuardianMembership
 from app.models.goal import Goal, GoalUpdate
 from app.models.report import Report, ReportVersion
+from app.models.report_ai import ReportAIAnalysis
 from app.models.user import User
 
 __all__ = [
@@ -15,6 +16,7 @@ __all__ = [
     "AccessAuditLog",
     "Report",
     "ReportVersion",
+    "ReportAIAnalysis",
     "Goal",
     "GoalUpdate",
 ]

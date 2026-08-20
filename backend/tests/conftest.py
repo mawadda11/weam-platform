@@ -16,6 +16,7 @@ os.environ["WEAM_JWT_SECRET"] = "test-only-secret-32-bytes-minimum-123456"
 os.environ["WEAM_CREATE_TABLES_ON_STARTUP"] = "false"
 os.environ["WEAM_STORAGE_ROOT"] = TEST_STORAGE.as_posix()
 os.environ["WEAM_MAX_REPORT_UPLOAD_MB"] = "2"
+os.environ["WEAM_AI_PROVIDER"] = "mock"
 
 import pytest
 from fastapi.testclient import TestClient
