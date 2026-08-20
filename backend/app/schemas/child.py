@@ -78,6 +78,8 @@ class ChildPublic(BaseModel):
     support_requirements: list[str]
     services: list[str]
     summary: str | None
-    guardian_type: str
+    guardian_type: str | None
+    access_role: str
+    access_permissions: list[str]
     created_at: datetime
     updated_at: datetime

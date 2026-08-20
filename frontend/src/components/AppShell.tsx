@@ -25,6 +25,7 @@ export default function AppShell() {
 
         <nav className="prototype-main-nav" aria-label="التنقل الرئيسي">
           <NavLink to="/dashboard">الرئيسية</NavLink>
+          <NavLink to="/invitations">الدعوات</NavLink>
           {user?.role === 'guardian' && <NavLink to="/children/new">إضافة طفل</NavLink>}
         </nav>
 
@@ -41,8 +42,8 @@ export default function AppShell() {
 
       <nav className="mobile-bottom-nav" aria-label="التنقل السفلي">
         <NavLink to="/dashboard"><span>⌂</span><small>الرئيسية</small></NavLink>
-        <span className="future-nav"><b>♧</b><small>فريقي</small></span>
-        {user?.role === 'guardian' ? <Link className="add-nav" to="/children/new">＋</Link> : <span className="add-nav">＋</span>}
+        <NavLink to="/invitations"><span>✉</span><small>الدعوات</small></NavLink>
+        {user?.role === 'guardian' ? <Link className="add-nav" to="/children/new">＋</Link> : <span className="add-nav">و</span>}
         <span className="future-nav"><b>◌</b><small>الرسائل</small></span>
         <button type="button" onClick={signOut}><span>•••</span><small>المزيد</small></button>
       </nav>

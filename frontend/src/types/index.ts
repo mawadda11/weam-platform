@@ -29,7 +29,9 @@ export interface ChildProfile {
   support_requirements: string[]
   services: string[]
   summary?: string | null
-  guardian_type: 'primary' | 'secondary'
+  guardian_type?: 'primary' | 'secondary' | null
+  access_role: 'guardian' | 'care_provider'
+  access_permissions: string[]
   created_at: string
   updated_at: string
 }
@@ -44,4 +46,40 @@ export interface ChildInput {
   support_requirements: string[]
   services: string[]
   summary?: string
+}
+
+export interface CareInvitation {
+  id: string
+  child_id: string
+  child_name: string
+  email: string
+  target_role: 'guardian' | 'care_provider'
+  role_label?: string | null
+  permissions: string[]
+  status: string
+  access_expires_at?: string | null
+  invitation_expires_at: string
+  created_at: string
+}
+
+export interface CareTeamMember {
+  membership_id: string
+  membership_kind: 'guardian' | 'care_provider'
+  user_id: string
+  full_name: string
+  email: string
+  account_role: string
+  role_label?: string | null
+  verification_status: string
+  guardian_type?: 'primary' | 'secondary' | null
+  permissions: string[]
+  access_status: 'active' | 'revoked'
+  expires_at?: string | null
+  is_primary_guardian: boolean
+}
+
+export interface CareTeamOverview {
+  child_id: string
+  members: CareTeamMember[]
+  pending_invitations: CareInvitation[]
 }
