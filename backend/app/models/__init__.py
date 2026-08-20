@@ -1,3 +1,4 @@
+from app.models.assistant import AssistantMessage, AssistantThread
 from app.models.care_team import AccessAuditLog, CareInvitation, CareTeamMembership
 from app.models.chat import ChatMessage, Conversation, ConversationParticipant
 from app.models.child import CareProfile, Child, ChildIdentity, GuardianMembership
@@ -25,4 +26,6 @@ __all__ = [
     "Conversation",
     "ConversationParticipant",
     "ChatMessage",
+    "AssistantThread",
+    "AssistantMessage",
 ]

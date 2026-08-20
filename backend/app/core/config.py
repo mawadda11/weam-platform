@@ -40,6 +40,12 @@ class Settings(BaseSettings):
     stt_batch_size: int = 4
     stt_beam_size: int = 1
     stt_vad_min_silence_ms: int = 500
+    # Grounded assistant: Gemini Free Tier for synthesis + local retrieval/fallback.
+    assistant_provider: str = "gemini"
+    assistant_api_key: str | None = None
+    assistant_model: str = "gemini-3.6-flash"
+    assistant_timeout_seconds: int = 45
+    assistant_source_limit: int = 5
 
     model_config = SettingsConfigDict(
         env_file=".env",

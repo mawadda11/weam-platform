@@ -64,3 +64,50 @@
   .ai-result-grid,.ai-review-grid { grid-template-columns:1fr; }
   .ai-analysis-head { flex-direction:column; }
 }
+
+
+.ai-evidence-details {
+  border: 1px solid #dcebea;
+  border-radius: 16px;
+  background: #fbfdfc;
+  overflow: hidden;
+}
+
+.ai-evidence-details > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  color: #36575d;
+  font-weight: 800;
+  cursor: pointer;
+  list-style: none;
+}
+
+.ai-evidence-details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.ai-evidence-details > summary span {
+  min-width: 26px;
+  height: 22px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #e9f7f4;
+  color: #158b87;
+  font-size: 11px;
+}
+
+.ai-evidence-content {
+  padding: 0 18px 15px;
+  border-top: 1px solid #edf3f2;
+}
+
+.ai-evidence-content ul {
+  margin: 12px 0 0;
+  padding-inline-start: 20px;
+  color: #61777b;
+  line-height: 1.8;
+}

@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 
+from app.api.routes.assistant import router as assistant_router
 from app.api.routes.auth import router as auth_router
 from app.api.routes.care_team import router as care_team_router
 from app.api.routes.chat import router as chat_router
@@ -22,3 +23,5 @@ api_router.include_router(goals_router)
 api_router.include_router(timeline_router)
 api_router.include_router(voice_notes_router)
 api_router.include_router(chat_router)
+
+api_router.include_router(assistant_router)
