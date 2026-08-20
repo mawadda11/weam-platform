@@ -11,6 +11,12 @@ function formatDuration(seconds?: number | null) {
   return `${mins}:${String(secs).padStart(2, '0')}`
 }
 
+function providerLabel(note: VoiceNote) {
+  if (note.stt_provider === 'local_whisper') return 'تفريغ محلي فعلي'
+  if (note.stt_provider === 'mock') return 'تفريغ تجريبي'
+  return 'بانتظار التفريغ'
+}
+
 export default function VoiceNotesPage() {
   const { childId } = useParams()
   const [child, setChild] = useState<ChildProfile | null>(null)
@@ -32,7 +38,9 @@ export default function VoiceNotesPage() {
   const startedAtRef = useRef<number>(0)
 
   const primary = child?.guardian_type === 'primary'
-  const canCreate = Boolean(primary || child?.access_permissions.includes('create_voice_notes'))
+  const canCreate = Boolean(
+    primary || child?.access_permissions.includes('create_voice_notes'),
+  )
 
   const load = async () => {
     if (!childId) return
@@ -45,7 +53,11 @@ export default function VoiceNotesPage() {
   }
 
   useEffect(() => {
-    load().catch(() => setError('تعذر فتح الملاحظات الصوتية أو لا توجد صلاحية للوصول إليها.'))
+    load().catch(() =>
+      setError(
+        'تعذر فتح الملاحظات الصوتية أو لا توجد صلاحية للوصول إليها.',
+      ),
+    )
     return () => {
       if (timerRef.current) window.clearInterval(timerRef.current)
       Object.values(audioUrls).forEach((url) => URL.revokeObjectURL(url))
@@ -64,9 +76,11 @@ export default function VoiceNotesPage() {
         : 'audio/webm'
       const recorder = new MediaRecorder(stream, { mimeType })
       chunksRef.current = []
+
       recorder.ondataavailable = (event) => {
         if (event.data.size) chunksRef.current.push(event.data)
       }
+
       recorder.onstop = () => {
         const blob = new Blob(chunksRef.current, { type: recorder.mimeType })
         const file = new File(
@@ -79,16 +93,26 @@ export default function VoiceNotesPage() {
         setRecordedUrl(URL.createObjectURL(blob))
         stream.getTracks().forEach((track) => track.stop())
       }
+
       recorder.start()
       recorderRef.current = recorder
       startedAtRef.current = Date.now()
       setDuration(0)
+
       timerRef.current = window.setInterval(() => {
-        setDuration(Math.max(0, Math.round((Date.now() - startedAtRef.current) / 1000)))
+        setDuration(
+          Math.max(
+            0,
+            Math.round((Date.now() - startedAtRef.current) / 1000),
+          ),
+        )
       }, 500)
+
       setRecording(true)
     } catch {
-      setError('لم يتم السماح باستخدام الميكروفون. فعّلي إذن الميكروفون للمتصفح.')
+      setError(
+        'لم يتم السماح باستخدام الميكروفون. فعّلي إذن الميكروفون للمتصفح.',
+      )
     }
   }
 
@@ -105,23 +129,28 @@ export default function VoiceNotesPage() {
 
   const uploadAudio = async () => {
     if (!childId || !recordedFile) return
+
     const data = new FormData()
     data.append('title', title || 'ملاحظة صوتية')
     data.append('duration_seconds', String(duration))
     data.append('file', recordedFile)
+
     setBusy(true)
     setError('')
     setNotice('')
+
     try {
       await apiClient.post(`/children/${childId}/voice-notes`, data)
       setRecordedFile(null)
       if (recordedUrl) URL.revokeObjectURL(recordedUrl)
       setRecordedUrl(null)
       setDuration(0)
-      setNotice('تم حفظ التسجيل. يمكنك الآن إنشاء مسودة التفريغ.')
+      setNotice('تم حفظ التسجيل. يمكنك الآن تفريغ الصوت إلى نص.')
       await load()
     } catch {
-      setError('تعذر رفع التسجيل. يدعم وئام WebM وWAV وMP3 وM4A حتى 25MB.')
+      setError(
+        'تعذر رفع التسجيل. يدعم وئام WebM وWAV وMP3 وM4A حتى 25MB.',
+      )
     } finally {
       setBusy(false)
     }
@@ -132,8 +161,10 @@ export default function VoiceNotesPage() {
     const data = new FormData()
     data.append('title', title || file.name)
     data.append('file', file)
+
     setBusy(true)
     setError('')
+
     try {
       await apiClient.post(`/children/${childId}/voice-notes`, data)
       setNotice('تم رفع الملف الصوتي.')
@@ -149,16 +180,28 @@ export default function VoiceNotesPage() {
     setBusy(true)
     setError('')
     setNotice('')
+
     try {
       const response = await apiClient.post<VoiceNote>(
         `/voice-notes/${note.id}/transcribe`,
       )
+
       setDrafts((current) => ({
         ...current,
         [note.id]: response.data.transcript_draft ?? '',
       }))
+
       await load()
-      setNotice('تم إنشاء مسودة التفريغ. راجعيها قبل الاعتماد.')
+
+      if (response.data.transcription_status === 'failed') {
+        setError(response.data.error_message || 'تعذر تفريغ التسجيل.')
+      } else if (response.data.stt_provider === 'local_whisper') {
+        setNotice(
+          'تم تفريغ التسجيل فعليًا إلى نص. راجعي النص قبل الاعتماد.',
+        )
+      } else {
+        setNotice('تم إنشاء مسودة تفريغ تجريبية.')
+      }
     } catch {
       setError('تعذر إنشاء التفريغ.')
     } finally {
@@ -172,14 +215,17 @@ export default function VoiceNotesPage() {
   ) => {
     const transcript = drafts[note.id] ?? note.transcript_draft ?? ''
     if (!transcript.trim()) return
+
     setBusy(true)
     setError('')
+
     try {
       await apiClient.patch(`/voice-notes/${note.id}/review`, {
         review_status: reviewStatus,
         transcript,
       })
       await load()
+
       setNotice(
         reviewStatus === 'approved'
           ? 'تم اعتماد التفريغ بعد المراجعة البشرية.'
@@ -194,6 +240,7 @@ export default function VoiceNotesPage() {
 
   const loadAudio = async (note: VoiceNote) => {
     if (audioUrls[note.id]) return
+
     try {
       const response = await apiClient.get(
         `/voice-notes/${note.id}/audio`,
@@ -209,28 +256,49 @@ export default function VoiceNotesPage() {
   }
 
   if (!child && !error) {
-    return <div className="loading-row"><div className="spinner" /> جاري تحميل الملاحظات الصوتية...</div>
+    return (
+      <div className="loading-row">
+        <div className="spinner" /> جاري تحميل الملاحظات الصوتية...
+      </div>
+    )
   }
 
   if (!child) {
-    return <div className="prototype-empty-card"><h2>تعذر فتح الملاحظات الصوتية</h2><p>{error}</p><Link className="btn btn-primary" to="/dashboard">الرئيسية</Link></div>
+    return (
+      <div className="prototype-empty-card">
+        <h2>تعذر فتح الملاحظات الصوتية</h2>
+        <p>{error}</p>
+        <Link className="btn btn-primary" to="/dashboard">
+          الرئيسية
+        </Link>
+      </div>
+    )
   }
 
   return (
     <section className="voice-page">
       <div className="voice-hero">
         <div>
-          <Link to={`/children/${child.id}`} className="voice-back">← العودة لملف الطفل</Link>
+          <Link to={`/children/${child.id}`} className="voice-back">
+            ← العودة لملف الطفل
+          </Link>
           <span className="soft-kicker">الصوت إلى نص</span>
           <h1>ملاحظات {child.preferred_name || child.first_name} الصوتية</h1>
-          <p>سجلي تحديثًا سريعًا، حوّليه إلى مسودة نصية، ثم راجعي النص قبل اعتماده ومشاركته مع الفريق.</p>
+          <p>
+            سجلي تحديثًا سريعًا، حوّليه إلى نص، ثم راجعي التفريغ قبل اعتماده
+            ومشاركته مع الفريق.
+          </p>
         </div>
-        <span className="voice-human-badge">🎙 مراجعة بشرية قبل الاعتماد</span>
+        <span className="voice-human-badge">
+          🎙 مراجعة بشرية قبل الاعتماد
+        </span>
       </div>
 
       <div className="voice-dev-note">
-        <strong>وضع التطوير المحلي</strong>
-        <p>التسجيل الصوتي حقيقي ومحفوظ، لكن التفريغ الحالي تجريبي لاختبار الـworkflow. سنربطه بمزود Speech-to-Text فعلي بعد اعتماد الواجهة.</p>
+        <strong>خصوصية الملاحظة الصوتية</strong>
+        <p>
+          التفريغ يعمل محليًا على جهاز تشغيل وئام بدون خدمة مدفوعة، ولا يظهر النص لأعضاء المشاهدة قبل اعتماده بشريًا.
+        </p>
       </div>
 
       {error && <div className="alert alert-error">{error}</div>}
@@ -242,22 +310,37 @@ export default function VoiceNotesPage() {
             <span className="voice-mic">●</span>
             <div>
               <h2>{recording ? 'جاري التسجيل...' : 'سجلي ملاحظة جديدة'}</h2>
-              <p>مناسبة لتحديث سريع بعد جلسة، اجتماع أو ملاحظة من المنزل.</p>
+              <p>
+                مناسبة لتحديث سريع بعد جلسة، اجتماع أو ملاحظة من المنزل.
+              </p>
             </div>
           </div>
 
           <label className="field">
             <span>عنوان الملاحظة</span>
-            <input value={title} onChange={(event) => setTitle(event.target.value)} maxLength={180} />
+            <input
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              maxLength={180}
+            />
           </label>
 
           <div className="voice-record-controls">
             <strong>{formatDuration(duration)}</strong>
+
             {!recording ? (
-              <button className="btn btn-primary" onClick={() => void startRecording()}>🎙 بدء التسجيل</button>
+              <button
+                className="btn btn-primary"
+                onClick={() => void startRecording()}
+              >
+                🎙 بدء التسجيل
+              </button>
             ) : (
-              <button className="btn btn-white" onClick={stopRecording}>■ إيقاف</button>
+              <button className="btn btn-white" onClick={stopRecording}>
+                ■ إيقاف
+              </button>
             )}
+
             <label className="btn btn-white voice-file-button">
               رفع ملف صوتي
               <input
@@ -274,7 +357,11 @@ export default function VoiceNotesPage() {
           {recordedUrl && (
             <div className="voice-preview">
               <audio controls src={recordedUrl} />
-              <button className="btn btn-primary" disabled={busy} onClick={() => void uploadAudio()}>
+              <button
+                className="btn btn-primary"
+                disabled={busy}
+                onClick={() => void uploadAudio()}
+              >
                 {busy ? 'جارٍ الحفظ...' : 'حفظ التسجيل'}
               </button>
             </div>
@@ -286,34 +373,73 @@ export default function VoiceNotesPage() {
         <div className="prototype-empty-card">
           <span>🎙</span>
           <h2>لا توجد ملاحظات صوتية بعد</h2>
-          <p>أول تسجيل سيظهر هنا مع الصوت، مسودة التفريغ، وحالة المراجعة.</p>
+          <p>
+            أول تسجيل سيظهر هنا مع الصوت، مسودة التفريغ، وحالة المراجعة.
+          </p>
         </div>
       ) : (
         <div className="voice-note-list">
           {notes.map((note) => {
-            const draftValue = drafts[note.id] ?? note.transcript_draft ?? ''
+            const draftValue =
+              drafts[note.id] ?? note.transcript_draft ?? ''
+
             return (
               <article className="voice-note-card" key={note.id}>
                 <div className="voice-note-head">
                   <div>
                     <div className="voice-note-badges">
-                      <span>{note.review_status === 'approved' ? 'معتمد بشريًا' : note.review_status === 'draft' ? 'مسودة للمراجعة' : note.review_status === 'rejected' ? 'مرفوض' : 'بانتظار التفريغ'}</span>
+                      <span>
+                        {note.review_status === 'approved'
+                          ? 'معتمد بشريًا'
+                          : note.review_status === 'draft'
+                            ? 'مسودة للمراجعة'
+                            : note.review_status === 'rejected'
+                              ? 'مرفوض'
+                              : 'بانتظار التفريغ'}
+                      </span>
+                      <span>{providerLabel(note)}</span>
                       <span>{formatDuration(note.duration_seconds)}</span>
                     </div>
+
                     <h2>{note.title}</h2>
-                    <p>بواسطة {note.created_by_name} · {new Date(note.created_at).toLocaleString('ar-SA-u-ca-gregory')}</p>
+                    <p>
+                      بواسطة {note.created_by_name} ·{' '}
+                      {new Date(note.created_at).toLocaleString(
+                        'ar-SA-u-ca-gregory',
+                      )}
+                    </p>
                   </div>
-                  <button className="btn btn-white btn-small" onClick={() => void loadAudio(note)}>تشغيل الصوت</button>
+
+                  <button
+                    className="btn btn-white btn-small"
+                    onClick={() => void loadAudio(note)}
+                  >
+                    تشغيل الصوت
+                  </button>
                 </div>
 
-                {audioUrls[note.id] && <audio className="voice-note-audio" controls src={audioUrls[note.id]} />}
+                {audioUrls[note.id] && (
+                  <audio
+                    className="voice-note-audio"
+                    controls
+                    src={audioUrls[note.id]}
+                  />
+                )}
 
                 {note.transcription_status === 'not_started' && canCreate && (
-                  <button className="btn btn-primary" disabled={busy} onClick={() => void transcribe(note)}>✦ إنشاء مسودة التفريغ</button>
+                  <button
+                    className="btn btn-primary"
+                    disabled={busy}
+                    onClick={() => void transcribe(note)}
+                  >
+                    ✦ تفريغ الصوت إلى نص
+                  </button>
                 )}
 
                 {note.transcription_status === 'failed' && (
-                  <div className="alert alert-error">{note.error_message || 'فشل التفريغ.'}</div>
+                  <div className="alert alert-error">
+                    {note.error_message || 'فشل التفريغ.'}
+                  </div>
                 )}
 
                 {note.review_status === 'draft' && canCreate && (
@@ -324,29 +450,52 @@ export default function VoiceNotesPage() {
                         rows={5}
                         dir="auto"
                         value={draftValue}
-                        onChange={(event) => setDrafts((current) => ({
-                          ...current,
-                          [note.id]: event.target.value,
-                        }))}
+                        onChange={(event) =>
+                          setDrafts((current) => ({
+                            ...current,
+                            [note.id]: event.target.value,
+                          }))
+                        }
                       />
                     </label>
+
                     <div className="voice-review-actions">
-                      <button className="btn btn-white" disabled={busy} onClick={() => void review(note, 'rejected')}>رفض المسودة</button>
-                      <button className="btn btn-primary" disabled={busy} onClick={() => void review(note, 'approved')}>اعتماد التفريغ</button>
+                      <button
+                        className="btn btn-white"
+                        disabled={busy}
+                        onClick={() => void review(note, 'rejected')}
+                      >
+                        رفض المسودة
+                      </button>
+
+                      <button
+                        className="btn btn-primary"
+                        disabled={busy}
+                        onClick={() => void review(note, 'approved')}
+                      >
+                        اعتماد التفريغ
+                      </button>
                     </div>
                   </div>
                 )}
 
-                {note.review_status === 'approved' && note.transcript_final && (
-                  <div className="voice-approved-transcript">
-                    <span>النص المعتمد</span>
-                    <p dir="auto">{note.transcript_final}</p>
-                    <small>اعتمد بواسطة {note.reviewed_by_name || 'عضو مخول'}</small>
-                  </div>
-                )}
+                {note.review_status === 'approved' &&
+                  note.transcript_final && (
+                    <div className="voice-approved-transcript">
+                      <span>النص المعتمد</span>
+                      <p dir="auto">{note.transcript_final}</p>
+                      <small>
+                        اعتمد بواسطة{' '}
+                        {note.reviewed_by_name || 'عضو مخول'}
+                      </small>
+                    </div>
+                  )}
 
                 {note.review_status === 'draft' && !canCreate && (
-                  <div className="voice-private-draft">المسودة بانتظار مراجعة عضو مخول، ولن تظهر لك قبل اعتمادها.</div>
+                  <div className="voice-private-draft">
+                    المسودة بانتظار مراجعة عضو مخول، ولن تظهر لك قبل
+                    اعتمادها.
+                  </div>
                 )}
               </article>
             )
