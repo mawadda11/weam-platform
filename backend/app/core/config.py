@@ -28,13 +28,18 @@ class Settings(BaseSettings):
     ai_timeout_seconds: int = 60
     ai_max_inline_mb: int = 8
 
-    # Provider-independent speech-to-text boundary.
-    # "mock" keeps local development deterministic until a production
-    # provider is configured.
-    stt_provider: str = "mock"
+    # Free/local speech-to-text.
+    # large-v3-turbo is the preferred multilingual quality/speed balance.
+    stt_provider: str = "local_whisper"
     stt_api_key: str | None = None
-    stt_model: str = "provider-default"
-    stt_language: str = "ar"
+    stt_model: str = "large-v3-turbo"
+    stt_fallback_model: str = "small"
+    stt_language: str = "auto"
+    stt_device: str = "cpu"
+    stt_compute_type: str = "int8"
+    stt_batch_size: int = 4
+    stt_beam_size: int = 1
+    stt_vad_min_silence_ms: int = 500
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -44,7 +49,11 @@ class Settings(BaseSettings):
 
     @property
     def frontend_origin_list(self) -> list[str]:
-        return [origin.strip() for origin in self.frontend_origins.split(",") if origin.strip()]
+        return [
+            origin.strip()
+            for origin in self.frontend_origins.split(",")
+            if origin.strip()
+        ]
 
 
 @lru_cache
