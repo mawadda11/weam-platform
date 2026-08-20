@@ -74,4 +74,7 @@ export const tokenStorage = {
   hasAccessToken() {
     return Boolean(localStorage.getItem(ACCESS_KEY))
   },
+  getAccessToken() {
+    return localStorage.getItem(ACCESS_KEY)
+  },
 }

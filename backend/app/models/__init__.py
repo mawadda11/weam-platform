@@ -1,4 +1,5 @@
 from app.models.care_team import AccessAuditLog, CareInvitation, CareTeamMembership
+from app.models.chat import ChatMessage, Conversation, ConversationParticipant
 from app.models.child import CareProfile, Child, ChildIdentity, GuardianMembership
 from app.models.goal import Goal, GoalUpdate
 from app.models.report import Report, ReportVersion
@@ -21,4 +22,7 @@ __all__ = [
     "Goal",
     "GoalUpdate",
     "VoiceNote",
+    "Conversation",
+    "ConversationParticipant",
+    "ChatMessage",
 ]
