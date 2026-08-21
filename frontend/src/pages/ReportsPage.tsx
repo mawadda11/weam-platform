@@ -17,11 +17,6 @@ const REPORT_TYPES = [
   'أخرى',
 ]
 
-function formatSize(bytes: number) {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-}
 
 function fileIcon(contentType?: string) {
   if (contentType === 'application/pdf') return 'PDF'
@@ -186,7 +181,7 @@ export default function ReportsPage() {
     <section className="reports-page">
       <div className="reports-hero">
         <div>
-          <Link className="reports-back" to={`/children/${child.id}`}>→ العودة لملف الطفل</Link>
+          <Link className="reports-back" to={`/children/${child.id}`}>← العودة إلى ملف الطفل</Link>
           <span className="soft-kicker">التقارير والوثائق</span>
           <h1>تقارير {child.preferred_name || child.first_name}</h1>
           <p>كل تقرير محفوظ بنسخه السابقة وصلاحياته، ليبقى فريق الرعاية على نفس الصورة.</p>
@@ -250,11 +245,11 @@ export default function ReportsPage() {
                   <div className="report-card-copy">
                     <div className="report-title-row"><div><span className="report-type-pill">{report.report_type}</span>{report.visibility === 'restricted' && <span className="report-private-pill">وصول محدد</span>}<h2>{report.title}</h2></div><small>{report.report_date ? new Date(`${report.report_date}T00:00:00`).toLocaleDateString('ar-SA-u-ca-gregory') : new Date(report.created_at).toLocaleDateString('ar-SA-u-ca-gregory')}</small></div>
                     <p>{report.source_label || 'بدون جهة محددة'} · أضيف بواسطة {report.created_by_name}</p>
-                    <div className="report-meta-row"><span>{report.versions.length} {report.versions.length === 1 ? 'نسخة' : 'نسخ'}</span>{latest && <span>{formatSize(latest.size_bytes)}</span>}<span>{report.visibility === 'care_team' ? 'متاح لفريق الرعاية المصرح' : `${report.allowed_user_ids.length} أعضاء محددين`}</span></div>
+                    <div className="report-meta-row"><span>{report.versions.length} {report.versions.length === 1 ? 'نسخة' : 'نسخ'}</span><span>{report.visibility === 'care_team' ? 'متاح لفريق الرعاية المصرح' : `${report.allowed_user_ids.length} أعضاء محددين`}</span></div>
                   </div>
                   <div className="report-card-actions">
                     {latest && <button className="btn btn-primary btn-small" onClick={() => void downloadVersion(report, latest)}>تنزيل</button>}
-                    {latest && <Link className="btn btn-white btn-small" to={`/reports/${report.id}/ai`}>✦ تحليل AI</Link>}
+                    {latest && <Link className="btn btn-white btn-small" to={`/reports/${report.id}/ai`}>✦ تحليل التقرير</Link>}
                     <button className="btn btn-white btn-small" onClick={() => setHistoryOpen(historyVisible ? null : report.id)}>{historyVisible ? 'إخفاء النسخ' : 'سجل النسخ'}</button>
                     {canUpload && <label className="btn btn-white btn-small report-version-button">نسخة جديدة<input type="file" accept="application/pdf,image/png,image/jpeg" onChange={(event) => { void uploadVersion(report.id, event.target.files?.[0]); event.currentTarget.value = '' }} /></label>}
                     {canManage && <button className="report-archive-button" type="button" onClick={() => void archiveReport(report.id)}>أرشفة</button>}
@@ -272,7 +267,7 @@ export default function ReportsPage() {
                       <div className="report-version-row" key={version.id}>
                         <span className="version-number">v{version.version_number}</span>
                         <div><strong>{version.original_filename}</strong><small>{new Date(version.created_at).toLocaleString('ar-SA-u-ca-gregory')} · {version.uploaded_by_name}{version.notes ? ` · ${version.notes}` : ''}</small></div>
-                        <span>{formatSize(version.size_bytes)}</span>
+                        
                         <button type="button" onClick={() => void downloadVersion(report, version)}>تنزيل</button>
                       </div>
                     ))}

@@ -30,7 +30,7 @@ export default function DashboardPage() {
     return (
       <section className="provider-dashboard">
         <div className="soft-dashboard-banner">
-          <div><span className="soft-kicker">مرحبًا {user?.full_name}</span><h1>حسابك جاهز كبداية ✨</h1><p>سيتم تفعيل لوحة هذا النوع من الحسابات في المراحل القادمة.</p></div>
+          <div><span className="soft-kicker">مرحبًا {user?.full_name}</span><h1>مرحبًا بك في وئام</h1><p>يمكنك الوصول إلى الخدمات المتاحة لحسابك من هذه المساحة.</p></div>
           {user?.verification_status === 'unverified' && <span className="status-pill warning">غير موثّق</span>}
         </div>
       </section>
@@ -119,7 +119,7 @@ export default function DashboardPage() {
             <div className="card-title-row"><div><span className="soft-kicker">رحلة الطفل</span><h2>كل التحديثات في خط زمني واحد</h2></div><Link to={`/children/${selectedChild.id}/timeline`}>فتح الخط الزمني</Link></div>
             <div className="timeline-placeholder">
               <span className="timeline-icon">✓</span>
-              <div><strong>Milestone 1 أصبح مترابطًا</strong><p>الملف وفريق الرعاية والتقارير والأهداف تظهر الآن ضمن رحلة موحدة وبصلاحيات واضحة.</p></div>
+              <div><strong>رحلة الرعاية أصبحت أوضح</strong><p>الملف وفريق الرعاية والتقارير والأهداف والمتابعات تظهر معًا في رحلة واحدة واضحة.</p></div>
             </div>
           </div>
 

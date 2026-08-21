@@ -251,12 +251,12 @@ export default function AiAssistantPage() {
     <section className="assistant-page">
       <div className="assistant-hero">
         <div>
-          <Link className="assistant-back" to={`/children/${child.id}`}>← العودة لملف الطفل</Link>
-          <span className="soft-kicker">مساعد الرعاية الذكي</span>
+          <Link className="assistant-back" to={`/children/${child.id}`}>← العودة إلى ملف الطفل</Link>
+          <span className="soft-kicker">مساعد وئام</span>
           <h1>مساعد وئام لـ {child.preferred_name || child.first_name}</h1>
           <p>اسألي عن التقارير، الأهداف، الاحتياجات أو الملاحظات المعتمدة. كل إجابة تُظهر مصادرها ولا تستخدم معلومات خارج ملف الطفل.</p>
         </div>
-        <span className="assistant-local-badge">✦ مدعوم بالذكاء الاصطناعي</span>
+        <span className="assistant-local-badge">✦ يعتمد على بيانات الملف</span>
       </div>
 
       <div className="assistant-safety-note">
@@ -321,7 +321,7 @@ export default function AiAssistantPage() {
               <div className="assistant-welcome">
                 <span>✦</span>
                 <h2>وش حابة تعرفي من ملف الطفل؟</h2>
-                <p>المساعد يبحث داخل المعلومات المعتمدة، ثم يصيغ جوابًا مختصرًا ويُبقي المصادر مخفية حتى تحتاجينها.</p>
+                <p>يبحث مساعد وئام داخل المعلومات المعتمدة ويعرض لك إجابة مختصرة مع إمكانية مراجعة مصادرها.</p>
                 <div className="assistant-suggestions">
                   {suggestedQuestions.map((item) => (
                     <button key={item} onClick={() => void ask(undefined, item)}>{item}</button>

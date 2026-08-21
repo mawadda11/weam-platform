@@ -28,6 +28,20 @@ const defaultGuardianPermissions = [
   'message_team',
 ]
 
+
+function permissionLabel(permission: string) {
+  const configured = permissions.find(([value]) => value === permission)?.[1]
+  if (configured) return configured
+
+  const managementLabels: Record<string, string> = {
+    manage_child: 'إدارة ملف الطفل',
+    manage_care_team: 'إدارة فريق الرعاية',
+    manage_permissions: 'إدارة الصلاحيات',
+  }
+
+  return managementLabels[permission] || 'صلاحية إضافية'
+}
+
 function MemberEditor({
   childId,
   member,
@@ -259,7 +273,7 @@ export default function CareTeamPage() {
           </p>
         </div>
         <Link className="btn btn-outline" to={`/children/${child.id}`}>
-          العودة لملف الطفل
+          العودة إلى ملف الطفل
         </Link>
       </div>
 
@@ -296,7 +310,7 @@ export default function CareTeamPage() {
               <span className="soft-kicker">دعوة جديدة</span>
               <h2>أضيفي عضوًا إلى الفريق</h2>
             </div>
-            <span className="step-pill">01</span>
+            <span className="step-pill">دعوة</span>
           </div>
 
           <div className="invite-fields">
@@ -408,8 +422,7 @@ export default function CareTeamPage() {
                 <div className="member-permission-chips">
                   {member.permissions.slice(0, 5).map((permission) => (
                     <span key={permission}>
-                      {permissions.find(([value]) => value === permission)?.[1] ||
-                        permission}
+                      {permissionLabel(permission)}
                     </span>
                   ))}
                 </div>

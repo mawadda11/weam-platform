@@ -53,7 +53,7 @@ export default function TimelinePage() {
       <div className="m1-feature-hero timeline-hero">
         <div>
           <div className="m1-breadcrumb-row">
-            <Link className="m1-back-link" to={child ? `/children/${child.id}` : '/dashboard'}>← العودة لملف الطفل</Link>
+            <Link className="m1-back-link" to={child ? `/children/${child.id}` : '/dashboard'}>← العودة إلى ملف الطفل</Link>
           </div>
           <span className="soft-kicker m1-feature-kicker">الخط الزمني</span>
           <h1>رحلة {child?.preferred_name || child?.first_name || 'الطفل'}</h1>

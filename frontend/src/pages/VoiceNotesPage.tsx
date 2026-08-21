@@ -12,9 +12,9 @@ function formatDuration(seconds?: number | null) {
 }
 
 function providerLabel(note: VoiceNote) {
-  if (note.stt_provider === 'local_whisper') return 'تفريغ محلي فعلي'
-  if (note.stt_provider === 'mock') return 'تفريغ تجريبي'
-  return 'بانتظار التفريغ'
+  if (note.transcription_status === 'completed') return 'تم تحويله إلى نص'
+  if (note.transcription_status === 'failed') return 'تعذر تحويله إلى نص'
+  return 'بانتظار التحويل إلى نص'
 }
 
 export default function VoiceNotesPage() {
@@ -197,10 +197,10 @@ export default function VoiceNotesPage() {
         setError(response.data.error_message || 'تعذر تفريغ التسجيل.')
       } else if (response.data.stt_provider === 'local_whisper') {
         setNotice(
-          'تم تفريغ التسجيل فعليًا إلى نص. راجعي النص قبل الاعتماد.',
+          'تم تحويل التسجيل إلى نص. راجعيه قبل الاعتماد.',
         )
       } else {
-        setNotice('تم إنشاء مسودة تفريغ تجريبية.')
+        setNotice('تم إنشاء مسودة نص للمراجعة.')
       }
     } catch {
       setError('تعذر إنشاء التفريغ.')
@@ -280,9 +280,9 @@ export default function VoiceNotesPage() {
       <div className="voice-hero">
         <div>
           <Link to={`/children/${child.id}`} className="voice-back">
-            ← العودة لملف الطفل
+            ← العودة إلى ملف الطفل
           </Link>
-          <span className="soft-kicker">الصوت إلى نص</span>
+          <span className="soft-kicker">الملاحظات الصوتية</span>
           <h1>ملاحظات {child.preferred_name || child.first_name} الصوتية</h1>
           <p>
             سجلي تحديثًا سريعًا، حوّليه إلى نص، ثم راجعي التفريغ قبل اعتماده
@@ -297,7 +297,7 @@ export default function VoiceNotesPage() {
       <div className="voice-dev-note">
         <strong>خصوصية الملاحظة الصوتية</strong>
         <p>
-          التفريغ يعمل محليًا على جهاز تشغيل وئام بدون خدمة مدفوعة، ولا يظهر النص لأعضاء المشاهدة قبل اعتماده بشريًا.
+          تُحفظ الملاحظة بأمان، ولا يظهر النص لفريق الرعاية قبل مراجعته واعتماده.
         </p>
       </div>
 
