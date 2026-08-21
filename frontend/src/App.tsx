@@ -6,11 +6,13 @@ import CareTeamPage from './pages/CareTeamPage'
 import CommunicationHubPage from './pages/CommunicationHubPage'
 import ChildDetailPage from './pages/ChildDetailPage'
 import DashboardPage from './pages/DashboardPage'
+import FollowUpsPage from './pages/FollowUpsPage'
 import GoalsPage from './pages/GoalsPage'
 import HomePage from './pages/HomePage'
 import InvitationsPage from './pages/InvitationsPage'
 import LoginPage from './pages/LoginPage'
 import NewChildPage from './pages/NewChildPage'
+import NotificationsPage from './pages/NotificationsPage'
 import RegisterPage from './pages/RegisterPage'
 import ReportAIPage from './pages/ReportAIPage'
 import ReportsPage from './pages/ReportsPage'
@@ -27,12 +29,14 @@ export default function App() {
       <Route element={<ProtectedRoute />}>
         <Route element={<AppShell />}>
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="/invitations" element={<InvitationsPage />} />
           <Route path="/children/new" element={<NewChildPage />} />
           <Route path="/children/:childId" element={<ChildDetailPage />} />
           <Route path="/children/:childId/care-team" element={<CareTeamPage />} />
           <Route path="/children/:childId/reports" element={<ReportsPage />} />
           <Route path="/children/:childId/goals" element={<GoalsPage />} />
+          <Route path="/children/:childId/follow-ups" element={<FollowUpsPage />} />
           <Route path="/children/:childId/timeline" element={<TimelinePage />} />
           <Route path="/children/:childId/voice-notes" element={<VoiceNotesPage />} />
           <Route path="/children/:childId/communication" element={<CommunicationHubPage />} />
