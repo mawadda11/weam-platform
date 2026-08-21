@@ -56,17 +56,8 @@ function AnalysisList({ title, items }: { title: string; items: string[] }) {
 }
 
 
-function providerDisplay(provider: string, model: string) {
-  if (provider === 'gemini' && model === 'gemini-3.6-flash') {
-    return 'Gemini 3.6 · النموذج الأساسي'
-  }
-  if (provider === 'gemini' && model === 'gemini-3.5-flash') {
-    return 'Gemini 3.5 · النموذج الاحتياطي'
-  }
-  if (provider === 'local_fallback' || provider === 'mock') {
-    return 'تحليل محلي · احتياطي'
-  }
-  return `${provider} · ${model}`
+function providerDisplay(_provider: string, _model: string) {
+  return 'تحليل التقرير'
 }
 
 
@@ -120,7 +111,7 @@ export default function ReportAIPage() {
         setNotice('اكتمل التحليل كمسودة. راجعي المحتوى قبل اعتماده.')
       }
     } catch {
-      setError('تعذر تشغيل التحليل. تحققي من الصلاحية وإعدادات مزود الذكاء الاصطناعي.')
+      setError('تعذر إكمال التحليل الآن. حاولي مرة أخرى بعد قليل.')
     } finally {
       setRunning(false)
     }
@@ -190,9 +181,9 @@ export default function ReportAIPage() {
       <div className="ai-report-hero">
         <div>
           <Link className="ai-report-back" to={`/children/${report.child_id}/reports`}>
-            ← العودة للتقارير
+            ← العودة إلى التقارير
           </Link>
-          <span className="soft-kicker">تحليل التقرير بالذكاء الاصطناعي</span>
+          <span className="soft-kicker">تحليل التقرير</span>
           <h1>فهم أسرع لـ {report.title}</h1>
           <p>
             وئام يستخرج أهم المعلومات من التقرير ويحولها إلى مسودة منظمة.
@@ -225,24 +216,6 @@ export default function ReportAIPage() {
         </div>
       </div>
 
-      {(latest?.provider === 'local_fallback' || latest?.provider === 'mock') && (
-        <div className="ai-development-banner">
-          <span>ℹ</span>
-          <div>
-            <strong>
-              {latest.provider === 'local_fallback'
-                ? 'تم استخدام التحليل المحلي الاحتياطي'
-                : 'وضع التطوير المحلي'}
-            </strong>
-            <p>
-              {latest.provider === 'local_fallback'
-                ? 'تعذر استخدام نماذج Gemini مؤقتًا، لذلك أكمل وئام التحليل محليًا. يمكنك إعادة التحليل لاحقًا، وسيجرب Gemini 3.6 تلقائيًا من جديد.'
-                : 'هذه النتيجة محلية ومخصصة لاختبار سير العمل.'}
-            </p>
-          </div>
-        </div>
-      )}
-
       {notice && <div className="alert alert-success">{notice}</div>}
       {error && <div className="alert alert-error">{error}</div>}
 
@@ -274,7 +247,7 @@ export default function ReportAIPage() {
                 <div className="ai-analysis-head">
                   <div>
                     <div className="ai-analysis-badges">
-                      <span>v{analysis.report_version_number}</span>
+                      <span>النسخة {analysis.report_version_number}</span>
                       <span>
                         {analysis.analysis_status === 'completed'
                           ? 'اكتمل التحليل'
@@ -294,8 +267,7 @@ export default function ReportAIPage() {
                         : `تحليل سابق ${analyses.length - index}`}
                     </h2>
                     <p>
-                      {providerDisplay(analysis.provider, analysis.model)}
-                      {' · '}بواسطة {analysis.created_by_name}
+                      بواسطة {analysis.created_by_name}
                     </p>
                   </div>
                   <time>

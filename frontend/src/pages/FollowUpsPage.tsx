@@ -299,13 +299,6 @@ export default function FollowUpsPage() {
                   </div>
                   <h3>{item.title}</h3>
                   {item.note && item.note.trim() !== item.title.trim() && <p>{item.note}</p>}
-                  {item.source_label && (
-                    <small className="m3-source-label">
-                      {item.source_label
-                        .replace('تقرير معتمد · ', 'المصدر: ')
-                        .replace('تقرير الرعاية · ', 'المصدر: ')}
-                    </small>
-                  )}
 
                   {missingDate && canManage && (
                     <div className="m3-date-confirm">

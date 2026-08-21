@@ -20,6 +20,7 @@ from app.schemas.report_ai import (
 )
 from app.services.access import require_child_access
 from app.services.ai_reports import AIReportError, analyze_report_file
+from app.services.follow_up_notifications import can_manage_follow_ups, sync_analysis_followups
 from app.services.storage import LocalReportStorage
 
 router = APIRouter(tags=["report-ai"])
@@ -261,7 +262,7 @@ def review_report_ai_analysis(
     analysis = _analysis_or_404(db, analysis_id)
     report = _report_or_404(db, analysis.report_id)
     _visible_grant(db, report, user)
-    require_child_access(
+    review_grant = require_child_access(
         db,
         report.child_id,
         user,
@@ -296,6 +297,16 @@ def review_report_ai_analysis(
     analysis.reviewed_by_user_id = user.id
     analysis.reviewed_at = utcnow()
 
+    created_followups = 0
+    if analysis.review_status == "approved" and can_manage_follow_ups(review_grant):
+        db.flush()
+        created_followups = sync_analysis_followups(
+            db,
+            analysis=analysis,
+            report=report,
+            created_by_user_id=user.id,
+        )
+
     _audit(
         db,
         child_id=report.child_id,
@@ -303,7 +314,10 @@ def review_report_ai_analysis(
         action="report_ai_analysis_reviewed",
         analysis_id=analysis.id,
         report_id=report.id,
-        details={"review_status": analysis.review_status},
+        details={
+            "review_status": analysis.review_status,
+            "automatic_followups_created": created_followups,
+        },
     )
     db.add(analysis)
     db.commit()

@@ -9,6 +9,7 @@ from app.core.constants import CarePermission
 from app.db.session import get_db
 from app.models.care_team import AccessAuditLog
 from app.models.child import Child
+from app.models.follow_up import FollowUp
 from app.models.goal import Goal, GoalUpdate
 from app.models.report import Report
 from app.models.user import User
@@ -17,7 +18,7 @@ from app.services.access import require_child_access
 
 router = APIRouter(tags=["timeline"])
 
-ALL_TYPES = {"profile", "team", "report", "goal"}
+ALL_TYPES = {"profile", "team", "report", "goal", "follow_up"}
 GOAL_STATUS_LABELS = {
     "new": "جديد",
     "in_progress": "قيد العمل",
@@ -263,6 +264,64 @@ def child_timeline(
                             "goal_id": goal.id,
                             "status": item.status,
                             "progress_percent": item.progress_percent,
+                        },
+                    )
+                )
+
+    if "follow_up" in selected:
+        followups = db.scalars(
+            select(FollowUp)
+            .where(FollowUp.child_id == child_id)
+            .order_by(FollowUp.created_at.desc())
+        ).all()
+
+        for item in followups:
+            due_text = (
+                f"موعد المتابعة: {item.due_date.isoformat()}"
+                if item.due_date
+                else "بدون موعد محدد"
+            )
+            description = " — ".join(
+                part for part in [due_text, item.note] if part
+            )
+            events.append(
+                TimelineEventPublic(
+                    id=f"follow-up-created:{item.id}",
+                    event_type="follow_up",
+                    title=f"متابعة جديدة: {item.title}",
+                    description=description,
+                    actor_user_id=item.created_by_user_id,
+                    actor_name=_actor_name(
+                        db,
+                        item.created_by_user_id,
+                        user_cache,
+                    ),
+                    occurred_at=item.created_at,
+                    data={
+                        "follow_up_id": item.id,
+                        "due_date": item.due_date.isoformat() if item.due_date else None,
+                        "status": item.status,
+                    },
+                )
+            )
+
+            if item.status == "completed" and item.completed_at:
+                events.append(
+                    TimelineEventPublic(
+                        id=f"follow-up-completed:{item.id}",
+                        event_type="follow_up",
+                        title=f"تم إنجاز متابعة: {item.title}",
+                        description=item.note,
+                        actor_user_id=item.completed_by_user_id,
+                        actor_name=_actor_name(
+                            db,
+                            item.completed_by_user_id,
+                            user_cache,
+                        ),
+                        occurred_at=item.completed_at,
+                        data={
+                            "follow_up_id": item.id,
+                            "status": "completed",
                         },
                     )
                 )

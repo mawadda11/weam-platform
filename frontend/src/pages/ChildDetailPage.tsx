@@ -71,7 +71,7 @@ export default function ChildDetailPage() {
         <article className="prototype-detail-card lavender"><div className="detail-card-heading"><span>＋</span><h2>الخدمات</h2></div><Tags items={child.services} /></article>
       </div>
 
-      <div className="prototype-next-banner"><div><span className="soft-kicker">Milestone 03</span><h2>المتابعة ما تضيع بين التقارير والرسائل</h2><p>أضيفي الموعد مرة واحدة، وتظهر المتابعة في الملف والخط الزمني والتنبيهات عند اقترابها.</p></div><span>05</span></div>
+      <div className="prototype-next-banner"><div><span className="soft-kicker">المتابعات</span><h2>المواعيد المهمة تبقى قريبة منك</h2><p>تظهر المتابعات في ملف الطفل والخط الزمني، ويذكّرك وئام بها عند اقتراب موعدها.</p></div><span>🔔</span></div>
     </section>
   )
 }

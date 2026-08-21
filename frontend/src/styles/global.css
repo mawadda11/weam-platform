@@ -406,3 +406,50 @@ textarea { resize: vertical; }
   .profile-shortcuts { grid-template-columns: repeat(2,1fr); }
   .prototype-metric-grid { grid-template-columns: 1fr; }
 }
+
+
+/* WEAM_PRODUCTION_FRONTEND_CLEANUP */
+.reports-hero > div:first-child,
+.voice-hero > div:first-child,
+.assistant-hero > div:first-child,
+.ai-report-hero > div:first-child,
+.m3-hero > div:first-child {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.reports-back,
+.voice-back,
+.assistant-back,
+.ai-report-back,
+.m3-back {
+  display: inline-flex;
+  width: fit-content;
+  margin-bottom: 6px;
+  text-decoration: none;
+}
+
+.reports-hero .soft-kicker,
+.voice-hero .soft-kicker,
+.assistant-hero .soft-kicker,
+.ai-report-hero .soft-kicker,
+.m3-hero .soft-kicker {
+  display: block;
+  margin-top: 2px;
+}
+
+.prototype-next-banner > span:last-child {
+  font-size: clamp(28px, 4vw, 44px);
+  opacity: .85;
+}
+
+@media (max-width: 760px) {
+  .reports-hero > div:first-child,
+  .voice-hero > div:first-child,
+  .assistant-hero > div:first-child,
+  .ai-report-hero > div:first-child,
+  .m3-hero > div:first-child {
+    align-items: stretch;
+  }
+}
