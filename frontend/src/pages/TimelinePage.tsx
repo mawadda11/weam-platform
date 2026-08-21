@@ -9,6 +9,7 @@ const FILTERS: Array<{ key: 'all' | TimelineEventType; label: string }> = [
   { key: 'team', label: 'الفريق' },
   { key: 'report', label: 'التقارير' },
   { key: 'goal', label: 'الأهداف' },
+  { key: 'follow_up', label: 'المتابعات' },
 ]
 
 const ICONS: Record<TimelineEventType, string> = {
@@ -16,6 +17,7 @@ const ICONS: Record<TimelineEventType, string> = {
   team: '♧',
   report: '▤',
   goal: '◎',
+  follow_up: '↻',
 }
 
 export default function TimelinePage() {
@@ -55,7 +57,7 @@ export default function TimelinePage() {
           </div>
           <span className="soft-kicker m1-feature-kicker">الخط الزمني</span>
           <h1>رحلة {child?.preferred_name || child?.first_name || 'الطفل'}</h1>
-          <p>من إنشاء الملف إلى انضمام الفريق والتقارير وتقدم الأهداف؛ كل تحديث مهم يبقى واضحًا ومرتبطًا بصاحبه وتاريخه.</p>
+          <p>من إنشاء الملف إلى انضمام الفريق والتقارير وتقدم الأهداف والمتابعات؛ كل تحديث مهم يبقى واضحًا ومرتبطًا بصاحبه وتاريخه.</p>
         </div>
         <div className="m1-count-card"><strong>{events.length}</strong><span>تحديث</span></div>
       </div>

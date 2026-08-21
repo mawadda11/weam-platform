@@ -51,6 +51,7 @@ export default function ChildDetailPage() {
         {canViewGoals ? <Link to={`/children/${child.id}/goals`} className="profile-shortcut-link"><span>◎</span><strong>الأهداف</strong><small>الخطة والتقدم</small></Link> : <div><span>◎</span><strong>الأهداف</strong><small>غير مصرح</small></div>}
         {canViewCareTeam ? <Link to={`/children/${child.id}/care-team`} className="profile-shortcut-link"><span>♧</span><strong>فريق الرعاية</strong><small>الفريق والصلاحيات</small></Link> : <div><span>♧</span><strong>فريق الرعاية</strong><small>غير مصرح</small></div>}
         {canViewTimeline ? <Link to={`/children/${child.id}/timeline`} className="profile-shortcut-link"><span>↻</span><strong>الخط الزمني</strong><small>رحلة الطفل كاملة</small></Link> : <div><span>↻</span><strong>الخط الزمني</strong><small>غير مصرح</small></div>}
+        {canViewTimeline ? <Link to={`/children/${child.id}/follow-ups`} className="profile-shortcut-link"><span>🔔</span><strong>المتابعات</strong><small>المواعيد والتذكيرات</small></Link> : <div><span>🔔</span><strong>المتابعات</strong><small>غير مصرح</small></div>}
         {canViewVoice ? <Link to={`/children/${child.id}/voice-notes`} className="profile-shortcut-link"><span>🎙</span><strong>ملاحظات صوتية</strong><small>تسجيل وتفريغ صوتي</small></Link> : <div><span>🎙</span><strong>ملاحظات صوتية</strong><small>غير مصرح</small></div>}
         {canMessageTeam ? <Link to={`/children/${child.id}/communication`} className="profile-shortcut-link"><span>💬</span><strong>التواصل</strong><small>فردي ومجموعات الفريق</small></Link> : <div><span>💬</span><strong>التواصل</strong><small>غير مصرح</small></div>}
         <Link to={`/children/${child.id}/assistant`} className="profile-shortcut-link"><span>✦</span><strong>مساعد وئام</strong><small>إجابات من مصادر الملف</small></Link>
@@ -70,7 +71,7 @@ export default function ChildDetailPage() {
         <article className="prototype-detail-card lavender"><div className="detail-card-heading"><span>＋</span><h2>الخدمات</h2></div><Tags items={child.services} /></article>
       </div>
 
-      <div className="prototype-next-banner"><div><span className="soft-kicker">Milestone 02</span><h2>الصوت يتحول إلى تحديث منظم</h2><p>سجلي الملاحظة سريعًا، راجعي التفريغ، ثم شاركي النص المعتمد ضمن رحلة الطفل.</p></div><span>04</span></div>
+      <div className="prototype-next-banner"><div><span className="soft-kicker">Milestone 03</span><h2>المتابعة ما تضيع بين التقارير والرسائل</h2><p>أضيفي الموعد مرة واحدة، وتظهر المتابعة في الملف والخط الزمني والتنبيهات عند اقترابها.</p></div><span>05</span></div>
     </section>
   )
 }

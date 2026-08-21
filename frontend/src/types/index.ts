@@ -206,7 +206,52 @@ export interface ChildGoal {
   updates: GoalUpdate[]
 }
 
-export type TimelineEventType = 'profile' | 'team' | 'report' | 'goal'
+export type FollowUpDisplayStatus = 'upcoming' | 'today' | 'overdue' | 'completed'
+
+export interface FollowUpItem {
+  id: string
+  child_id: string
+  title: string
+  note?: string | null
+  due_date?: string | null
+  status: 'open' | 'completed'
+  display_status: FollowUpDisplayStatus
+  source_type: 'manual' | 'report_ai' | string
+  source_id?: string | null
+  source_label?: string | null
+  created_by_user_id: string
+  created_by_name: string
+  completed_by_user_id?: string | null
+  completed_by_name?: string | null
+  completed_at?: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface FollowUpSuggestion {
+  analysis_id: string
+  report_id: string
+  report_title: string
+  action_index: number
+  action_text: string
+  extracted_due_date?: string | null
+  already_added: boolean
+}
+
+export interface NotificationItem {
+  event_key: string
+  notification_type: 'invitation' | 'report' | 'goal' | 'message' | 'follow_up' | string
+  title: string
+  body: string
+  child_id?: string | null
+  entity_type?: string | null
+  entity_id?: string | null
+  occurred_at: string
+  is_read: boolean
+  url: string
+}
+
+export type TimelineEventType = 'profile' | 'team' | 'report' | 'goal' | 'follow_up'
 
 export interface TimelineEvent {
   id: string
@@ -218,7 +263,6 @@ export interface TimelineEvent {
   occurred_at: string
   data: Record<string, unknown>
 }
-
 
 export interface ConversationParticipant {
   user_id: string
@@ -245,7 +289,6 @@ export interface CareConversation {
   created_at: string
   updated_at: string
 }
-
 
 export interface AssistantSource {
   index: number
