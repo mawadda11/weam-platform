@@ -71,6 +71,8 @@ def _center_public(center: Center, favorite_ids: set[str]) -> CenterPublic:
         latitude=center.latitude,
         longitude=center.longitude,
         is_favorite=center.id in favorite_ids,
+        source_type=center.source_type,
+        last_reviewed_at=center.last_reviewed_at,
         created_at=center.created_at,
         updated_at=center.updated_at,
     )

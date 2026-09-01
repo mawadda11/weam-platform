@@ -81,6 +81,11 @@ def _serialize_center(db: Session, item: Center) -> AdminCenterPublic:
         is_active=item.is_active,
         account_count=len(memberships),
         account_email=first_user.email if first_user else None,
+        source_type=item.source_type,
+        source_urls=list(item.source_urls or []),
+        last_reviewed_at=item.last_reviewed_at,
+        data_confidence=item.data_confidence,
+        listing_claimed=item.listing_claimed,
         created_at=item.created_at,
         updated_at=item.updated_at,
     )
@@ -207,6 +212,7 @@ def update_admin_center(
     before = {
         "verification_status": item.verification_status,
         "is_active": item.is_active,
+        "last_reviewed_at": item.last_reviewed_at.isoformat() if item.last_reviewed_at else None,
     }
     for field in {"verification_note", "is_active"} & values.keys():
         setattr(item, field, values[field])
@@ -218,6 +224,15 @@ def update_admin_center(
         else:
             item.verified_at = None
             item.verified_by_user_id = None
+
+    # Public-source review is deliberately separate from formal verification above:
+    # reviewing/refreshing where the data came from does not, by itself, mean Weam
+    # has verified the center.
+    if values.get("source_urls") is not None:
+        item.source_urls = values["source_urls"]
+    if payload.mark_reviewed:
+        item.last_reviewed_at = utcnow()
+
     _audit(
         db,
         actor=admin,

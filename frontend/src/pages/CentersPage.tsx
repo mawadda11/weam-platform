@@ -43,6 +43,14 @@ function ageLabel(center: Center) {
   return `حتى ${center.max_age_years} سنة`
 }
 
+function sourceLabel(center: Center) {
+  if (center.source_type !== 'public_research' || !center.last_reviewed_at) return null
+  const date = new Date(center.last_reviewed_at).toLocaleDateString('ar-SA-u-ca-gregory', {
+    year: 'numeric', month: 'long', day: 'numeric',
+  })
+  return `مصادر عامة · جرى الاطلاع عليها في ${date}`
+}
+
 export default function CentersPage() {
   const [centers, setCenters] = useState<Center[]>([])
   const [options, setOptions] = useState<CenterFilterOptions>({ cities: [], specialties: [], services: [] })
@@ -132,7 +140,11 @@ export default function CentersPage() {
 
       <div className="centers-demo-note">
         <span aria-hidden="true">i</span>
-        <p><strong>معلومات تعريفية تجريبية</strong> — بيانات المراكز في هذه النسخة مخصصة لاستعراض الدليل، وليست إعلانًا أو توصية بجهة محددة.</p>
+        <p>
+          تعتمد معلومات المراكز على مصادر عامة جرى الاطلاع عليها في التاريخ الموضح لكل مركز، أو على بيانات تجريبية
+          بالكامل لأغراض العرض في هذه النسخة. يُنصح بالتواصل مع المركز مباشرة للتأكد من توفر الخدمة وتحديث التفاصيل.
+          الظهور في الدليل لا يعني وجود شراكة أو اعتماد من وئام.
+        </p>
       </div>
 
       <form className="centers-filters" onSubmit={(event) => event.preventDefault()}>
@@ -193,6 +205,7 @@ export default function CentersPage() {
                 <span>{deliveryLabels(center).join(' • ')}</span>
                 <span>{ageLabel(center)}</span>
               </div>
+              {sourceLabel(center) && <p className="center-card-source">{sourceLabel(center)}</p>}
               <Link className="center-card-link" to={`/centers/${center.id}`}>عرض المركز <span aria-hidden="true">←</span></Link>
             </article>
           ))}

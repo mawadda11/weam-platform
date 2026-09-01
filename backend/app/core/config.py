@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
     refresh_token_expire_days: int = 14
+    max_failed_login_attempts: int = 5
+    login_lockout_minutes: int = 15
 
     google_client_id: str | None = None
     create_tables_on_startup: bool = False
@@ -66,3 +68,36 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
+
+
+_UNSAFE_JWT_SECRETS = {
+    "replace-me-locally",
+    "replace-with-a-long-random-secret",
+    "change-this-to-at-least-32-random-characters",
+}
+
+
+def assert_production_ready(settings: Settings) -> None:
+    """Refuse to start in production with development-only defaults.
+
+    Called once at application startup. Has no effect outside
+    ``WEAM_ENVIRONMENT=production`` so local development and tests are unaffected.
+    """
+    if settings.environment != "production":
+        return
+
+    problems: list[str] = []
+    if settings.jwt_secret in _UNSAFE_JWT_SECRETS or len(settings.jwt_secret) < 32:
+        problems.append("WEAM_JWT_SECRET must be a unique random value of at least 32 characters")
+    if settings.create_tables_on_startup:
+        problems.append(
+            "WEAM_CREATE_TABLES_ON_STARTUP must be false in production; "
+            "schema changes must go through Alembic migrations"
+        )
+    if not settings.database_url.startswith("postgresql"):
+        problems.append("WEAM_DATABASE_URL must point to PostgreSQL in production")
+
+    if problems:
+        raise RuntimeError(
+            "Refusing to start: unsafe configuration for production — " + "; ".join(problems)
+        )

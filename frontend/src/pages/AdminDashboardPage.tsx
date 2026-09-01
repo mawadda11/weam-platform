@@ -18,6 +18,15 @@ const verificationLabels: Record<string, string> = {
 
 const normalize = (value: string | null | undefined) => (value || '').trim().toLocaleLowerCase()
 
+const STALE_REVIEW_DAYS = 120
+
+function reviewAge(lastReviewedAt?: string | null): { label: string; stale: boolean } {
+  if (!lastReviewedAt) return { label: 'لم تتم مراجعته بعد', stale: true }
+  const days = Math.floor((Date.now() - new Date(lastReviewedAt).getTime()) / 86_400_000)
+  const label = days === 0 ? 'آخر مراجعة اليوم' : `آخر مراجعة قبل ${days} يومًا`
+  return { label, stale: days > STALE_REVIEW_DAYS }
+}
+
 export default function AdminDashboardPage() {
   const [summary, setSummary] = useState<AdminSummary | null>(null)
   const [users, setUsers] = useState<AdminUser[]>([])
@@ -158,28 +167,55 @@ export default function AdminDashboardPage() {
       {tab === 'centers' && (
         <div className="admin-panel">
           <div className="admin-panel-head"><div><span className="soft-kicker">المراكز</span><h2>اعتماد الدليل</h2></div><small>{filteredCenters.length} من {centers.length} مركزًا</small></div>
+          <p className="admin-panel-note">
+            مراجعة المصدر شيء، واعتماد وئام الرسمي شيء آخر: تسجيل مصادر مركز ومتى رُوجعت لا يعني أنه معتمد —
+            الاعتماد قرار منفصل بعد التأكد من صحة البيانات.
+          </p>
           <div className="admin-filter-bar centers">
             <label className="admin-search-field">بحث عن مركز<input value={centerQuery} onChange={(event) => setCenterQuery(event.target.value)} placeholder="اسم المركز أو المدينة أو البريد" /></label>
             <label>حالة التحقق<select value={centerStatus} onChange={(event) => setCenterStatus(event.target.value)}><option value="">كل الحالات</option><option value="unverified">قيد المراجعة</option><option value="verified">موثّق</option><option value="rejected">مرفوض</option></select></label>
           </div>
           <div className="admin-table-wrap">
             <table>
-              <thead><tr><th>المركز</th><th>المدينة</th><th>حساب الإدارة</th><th>التحقق</th><th>الإجراء</th></tr></thead>
+              <thead><tr><th>المركز</th><th>المدينة</th><th>حساب الإدارة</th><th>مصدر البيانات</th><th>التحقق</th><th>الإجراء</th></tr></thead>
               <tbody>
-                {!filteredCenters.length && <tr><td className="admin-empty-row" colSpan={5}>لا توجد مراكز مطابقة لعوامل البحث.</td></tr>}
-                {filteredCenters.map((item) => (
-                  <tr key={item.id}>
-                    <td><strong>{item.name}</strong><small>{item.is_active ? 'فعّال' : 'موقوف'}</small></td>
-                    <td>{item.city}</td>
-                    <td>{item.account_email || 'بيانات تجريبية'}</td>
-                    <td><span className={`admin-state ${item.verification_status}`}>{verificationLabels[item.verification_status]}</span></td>
-                    <td><div className="admin-actions">
-                      {item.verification_status !== 'verified' && <button disabled={busyId === item.id} onClick={() => void reviewCenter(item, { verification_status: 'verified', verification_note: 'تمت مراجعة بيانات المركز واعتماده.' })}>اعتماد</button>}
-                      {item.verification_status !== 'rejected' && <button className="danger" disabled={busyId === item.id} onClick={() => void reviewCenter(item, { verification_status: 'rejected', verification_note: 'تحتاج بيانات المركز إلى تحديث قبل الاعتماد.' })}>رفض</button>}
-                      <button className="muted" disabled={busyId === item.id} onClick={() => void reviewCenter(item, { is_active: !item.is_active })}>{item.is_active ? 'إيقاف' : 'تفعيل'}</button>
-                    </div></td>
-                  </tr>
-                ))}
+                {!filteredCenters.length && <tr><td className="admin-empty-row" colSpan={6}>لا توجد مراكز مطابقة لعوامل البحث.</td></tr>}
+                {filteredCenters.map((item) => {
+                  const age = reviewAge(item.last_reviewed_at)
+                  const isPublicResearch = item.source_type === 'public_research'
+                  return (
+                    <tr key={item.id}>
+                      <td><strong>{item.name}</strong><small>{item.is_active ? 'فعّال' : 'موقوف'}</small></td>
+                      <td>{item.city}</td>
+                      <td>{item.account_email || 'بيانات تجريبية'}</td>
+                      <td>
+                        <div className="admin-source-cell">
+                          <span className={`admin-source-badge ${item.source_type}`}>
+                            {isPublicResearch ? 'مصادر عامة' : 'بيانات تجريبية'}
+                          </span>
+                          {isPublicResearch && (
+                            <>
+                              <small className={age.stale ? 'stale' : ''}>{age.label}</small>
+                              {item.data_confidence && <small>موثوقية البيانات: {item.data_confidence === 'high' ? 'عالية' : item.data_confidence}</small>}
+                              {item.source_urls[0] && (
+                                <a href={item.source_urls[0]} target="_blank" rel="noreferrer noopener">عرض المصدر ↗</a>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </td>
+                      <td><span className={`admin-state ${item.verification_status}`}>{verificationLabels[item.verification_status]}</span></td>
+                      <td><div className="admin-actions">
+                        {isPublicResearch && (
+                          <button className="muted" disabled={busyId === item.id} onClick={() => void reviewCenter(item, { mark_reviewed: true })}>تحديد كمُراجَع اليوم</button>
+                        )}
+                        {item.verification_status !== 'verified' && <button disabled={busyId === item.id} onClick={() => void reviewCenter(item, { verification_status: 'verified', verification_note: 'تمت مراجعة بيانات المركز واعتماده.' })}>اعتماد</button>}
+                        {item.verification_status !== 'rejected' && <button className="danger" disabled={busyId === item.id} onClick={() => void reviewCenter(item, { verification_status: 'rejected', verification_note: 'تحتاج بيانات المركز إلى تحديث قبل الاعتماد.' })}>رفض</button>}
+                        <button className="muted" disabled={busyId === item.id} onClick={() => void reviewCenter(item, { is_active: !item.is_active })}>{item.is_active ? 'إيقاف' : 'تفعيل'}</button>
+                      </div></td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>

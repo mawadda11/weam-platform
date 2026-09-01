@@ -74,7 +74,7 @@ def _local_mock_analysis(
             limitations.append(f"تعذر استخراج نص PDF محليًا: {exc}")
     else:
         limitations.append(
-            "التحليل المحلي الاحتياطي لا يجري OCR للصور؛ أعيدي التحليل لاحقًا عند توفر Gemini."
+            "التحليل المحلي الاحتياطي لا يجري OCR للصور؛ يمكن إعادة التحليل لاحقًا لتحسين النتيجة."
         )
 
     lines = _clean_lines(text)
@@ -257,7 +257,7 @@ def analyze_report_file(
             limitations = list(data.get("limitations") or [])
             limitations.insert(
                 0,
-                "تم التحويل تلقائيًا إلى التحليل المحلي لأن نماذج Gemini لم تكن متاحة مؤقتًا.",
+                "تم التحويل تلقائيًا إلى التحليل المحلي لأن خدمة الذكاء الاصطناعي لم تكن متاحة مؤقتًا.",
             )
             data["limitations"] = limitations[:12]
         return AIReportResult(

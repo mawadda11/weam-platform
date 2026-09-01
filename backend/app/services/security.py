@@ -31,6 +31,7 @@ def _create_token(
     role: str,
     token_type: Literal["access", "refresh"],
     expires_delta: timedelta,
+    jti: str | None = None,
 ) -> str:
     now = datetime.now(timezone.utc)
     payload: dict[str, Any] = {
@@ -40,6 +41,8 @@ def _create_token(
         "iat": now,
         "exp": now + expires_delta,
     }
+    if jti is not None:
+        payload["jti"] = jti
     return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
 
 
@@ -52,12 +55,14 @@ def create_access_token(subject: str, role: str) -> str:
     )
 
 
-def create_refresh_token(subject: str, role: str) -> str:
+def create_refresh_token(subject: str, role: str, jti: str) -> str:
+    """``jti`` must match the id of a ``RefreshTokenRecord`` so it can be revoked."""
     return _create_token(
         subject,
         role,
         "refresh",
         timedelta(days=settings.refresh_token_expire_days),
+        jti=jti,
     )
 
 

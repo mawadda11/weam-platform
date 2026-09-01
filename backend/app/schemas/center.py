@@ -37,6 +37,8 @@ class CenterPublic(BaseModel):
     longitude: float | None
     specialists: list[CenterSpecialistSummary] = Field(default_factory=list)
     is_favorite: bool
+    source_type: str
+    last_reviewed_at: datetime | None
     created_at: datetime
     updated_at: datetime
 

@@ -77,4 +77,7 @@ export const tokenStorage = {
   getAccessToken() {
     return localStorage.getItem(ACCESS_KEY)
   },
+  getRefreshToken() {
+    return localStorage.getItem(REFRESH_KEY)
+  },
 }

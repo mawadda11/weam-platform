@@ -62,7 +62,7 @@ export default function GoogleSignInButton({ onCredential }: Props) {
   }, [clientId, onCredential])
 
   if (!clientId) {
-    return <p className="google-note">Google Sign-In يظهر بعد إضافة VITE_GOOGLE_CLIENT_ID.</p>
+    return <p className="google-note">تسجيل الدخول عبر Google غير مفعّل حاليًا في هذه النسخة.</p>
   }
 
   return <div className="google-button" ref={containerRef} />

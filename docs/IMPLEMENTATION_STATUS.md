@@ -1,5 +1,28 @@
 # Weam implementation status
 
+## Implemented — Competition demo environment rebuild
+
+Replaced the old 3-child, fields-only seed with a full four-child demonstration
+environment (لمى، يوسف، روان، عمر), each with a complete journey: reports (real,
+signature-valid synthetic PDFs), a reviewed/approved AI analysis, goals with
+progress history, follow-ups, a voice note with transcription, a grounded
+assistant conversation, an explainable center match computed by the real
+matching algorithm, and guardian↔specialist chat. Design and rationale:
+[`docs/SEED_DATA_ARCHITECTURE.md`](SEED_DATA_ARCHITECTURE.md).
+
+- Idempotent, production-guarded, migration-aware (`scripts/seed_demo.py`,
+  `--rebuild` / `--reset` flags). New migration `0017_demo_data_tags`.
+- Six real, publicly-sourced centers (Riyadh/Jeddah) added via a separate,
+  equally guarded script (`scripts/seed_real_centers.py`), tagged distinctly
+  from synthetic demo centers and never auto-marked as Weam-verified.
+- 19 new backend tests covering idempotency, rebuild, cross-child permission
+  differences, report file integrity + access control, notification/timeline
+  coherence, and that `--reset` cannot touch non-demo data.
+- Known limitation: the four report PDFs are pre-generated static assets, so
+  the calendar date printed inside each document is fixed at generation time
+  while the app's own `Report.report_date` is computed relative to the seed
+  run — the two are not automatically kept in sync.
+
 ## Implemented — M6–M8 (verification pending)
 
 ### M6 — Communication Upgrade

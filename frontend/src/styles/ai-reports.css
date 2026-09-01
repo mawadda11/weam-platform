@@ -1,6 +1,6 @@
 .ai-report-page { display:grid; gap:16px; }
-.ai-report-hero { display:flex; justify-content:space-between; gap:28px; align-items:center; padding:clamp(25px,4vw,38px); border-radius:28px; border:1px solid #dceee9; background:linear-gradient(115deg,#eaf8f5 0%,#fbfefd 55%,#fff8e8 115%); }
-.ai-report-back { display:inline-flex; color:var(--teal-dark); font-size:11px; font-weight:900; margin-bottom:12px; }
+.ai-report-hero { display:flex; justify-content:space-between; gap:28px; align-items:center; padding:clamp(25px,4vw,38px); border-radius:28px; border:1px solid #e2ddf5; background:linear-gradient(115deg,#f0eefb 0%,#fbfbfe 55%,#fff8e8 115%); }
+.ai-report-back { display:inline-flex; color:var(--primary); font-size:11px; font-weight:900; margin-bottom:12px; }
 .ai-report-hero h1 { margin:7px 0 8px; color:#2c454c; font-size:clamp(32px,4vw,48px); }
 .ai-report-hero p { margin:0; max-width:760px; color:var(--muted); line-height:1.8; }
 .ai-report-hero-actions { display:grid; justify-items:center; gap:11px; min-width:230px; }
@@ -18,7 +18,7 @@
 .ai-development-banner p { margin:3px 0 0; color:#718287; font-size:11px; line-height:1.7; }
 
 .ai-analysis-list { display:grid; gap:14px; }
-.ai-analysis-card { background:#fff; border:1px solid #e0ece9; border-radius:25px; padding:clamp(20px,3vw,28px); box-shadow:0 8px 28px rgba(53,96,101,.045); }
+.ai-analysis-card { background:#fff; border:1px solid #ded9f2; border-radius:25px; padding:clamp(20px,3vw,28px); box-shadow:0 8px 28px rgba(67,56,202,.05); }
 .ai-analysis-card.approved { border-color:#cfe9dc; }
 .ai-analysis-card.rejected { opacity:.78; }
 .ai-analysis-head { display:flex; justify-content:space-between; gap:18px; align-items:flex-start; border-bottom:1px solid #edf2f1; padding-bottom:14px; margin-bottom:16px; }
@@ -30,8 +30,8 @@
 .ai-analysis-badges .review.approved { background:#e7f7ef; color:#2e8b5e; }
 .ai-analysis-badges .review.rejected { background:#f9eaea; color:#a65c5c; }
 
-.ai-summary-box { border-radius:20px; padding:18px 20px; background:linear-gradient(135deg,#f0faf7,#fffaf0); border:1px solid #e0ece9; }
-.ai-summary-box > span { color:var(--teal-dark); font-size:10px; font-weight:900; }
+.ai-summary-box { border-radius:20px; padding:18px 20px; background:linear-gradient(135deg,var(--primary-soft),#fff); border:1px solid #e2ddf5; }
+.ai-summary-box > span { color:var(--primary); font-size:10px; font-weight:900; }
 .ai-summary-box p { margin:7px 0 0; color:#405b61; line-height:1.85; }
 
 .ai-ltr-content { text-align:left; unicode-bidi:plaintext; }

@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import uuid
+from datetime import datetime, timedelta, timezone
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -8,11 +11,13 @@ from app.api.deps import get_current_user
 from app.core.config import get_settings
 from app.core.constants import UserRole, VerificationStatus
 from app.db.session import get_db
+from app.models.auth_token import RefreshTokenRecord
 from app.models.user import User
 from app.schemas.auth import (
     AuthResponse,
     GoogleAuthRequest,
     LoginRequest,
+    LogoutRequest,
     RefreshRequest,
     RegisterRequest,
     UserPublic,
@@ -29,12 +34,43 @@ router = APIRouter(prefix="/auth", tags=["authentication"])
 settings = get_settings()
 
 
-def _auth_response(user: User) -> AuthResponse:
+def _utcnow() -> datetime:
+    return datetime.now(timezone.utc)
+
+
+def _as_aware(value: datetime) -> datetime:
+    if value.tzinfo is None:
+        return value.replace(tzinfo=timezone.utc)
+    return value
+
+
+def _issue_tokens(db: Session, user: User) -> AuthResponse:
+    record = RefreshTokenRecord(
+        id=str(uuid.uuid4()),
+        user_id=user.id,
+        expires_at=_utcnow() + timedelta(days=settings.refresh_token_expire_days),
+    )
+    db.add(record)
+    db.commit()
     return AuthResponse(
         access_token=create_access_token(user.id, user.role),
-        refresh_token=create_refresh_token(user.id, user.role),
+        refresh_token=create_refresh_token(user.id, user.role, jti=record.id),
         user=UserPublic.model_validate(user),
     )
+
+
+def _register_failed_login(db: Session, user: User) -> None:
+    user.failed_login_attempts += 1
+    if user.failed_login_attempts >= settings.max_failed_login_attempts:
+        user.locked_until = _utcnow() + timedelta(minutes=settings.login_lockout_minutes)
+    db.commit()
+
+
+def _clear_login_lock(db: Session, user: User) -> None:
+    if user.failed_login_attempts or user.locked_until:
+        user.failed_login_attempts = 0
+        user.locked_until = None
+        db.commit()
 
 
 @router.post("/register", response_model=AuthResponse, status_code=status.HTTP_201_CREATED)
@@ -59,30 +95,68 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)) -> AuthRes
     db.add(user)
     db.commit()
     db.refresh(user)
-    return _auth_response(user)
+    return _issue_tokens(db, user)
 
 
 @router.post("/login", response_model=AuthResponse)
 def login(payload: LoginRequest, db: Session = Depends(get_db)) -> AuthResponse:
     email = str(payload.email).lower().strip()
     user = db.scalar(select(User).where(User.email == email))
+
+    if user and user.locked_until and _utcnow() < _as_aware(user.locked_until):
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many failed attempts. Try again later.",
+        )
+
     if not user or not verify_password(payload.password, user.password_hash):
+        if user:
+            _register_failed_login(db, user)
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password")
     if not user.is_active:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account is disabled")
-    return _auth_response(user)
+
+    _clear_login_lock(db, user)
+    return _issue_tokens(db, user)
 
 
 @router.post("/refresh", response_model=AuthResponse)
 def refresh(payload: RefreshRequest, db: Session = Depends(get_db)) -> AuthResponse:
     claims = decode_token(payload.refresh_token, "refresh")
-    if not claims:
+    jti = claims.get("jti") if claims else None
+    if not claims or not jti:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired refresh token")
+
+    record = db.get(RefreshTokenRecord, jti)
+    if (
+        not record
+        or record.revoked_at is not None
+        or record.user_id != claims["sub"]
+        or _as_aware(record.expires_at) <= _utcnow()
+    ):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired refresh token")
 
     user = db.get(User, claims["sub"])
     if not user or not user.is_active:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User is unavailable")
-    return _auth_response(user)
+
+    # Rotate: this refresh token is single-use.
+    record.revoked_at = _utcnow()
+    db.commit()
+    return _issue_tokens(db, user)
+
+
+@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
+def logout(payload: LogoutRequest, db: Session = Depends(get_db)) -> None:
+    claims = decode_token(payload.refresh_token, "refresh")
+    jti = claims.get("jti") if claims else None
+    if jti:
+        record = db.get(RefreshTokenRecord, jti)
+        if record and record.revoked_at is None:
+            record.revoked_at = _utcnow()
+            db.commit()
+    # Always 204: logout must not reveal whether the token was valid.
+    return None
 
 
 @router.post("/google", response_model=AuthResponse)
@@ -163,7 +237,7 @@ def google_auth(payload: GoogleAuthRequest, db: Session = Depends(get_db)) -> Au
 
     if not user.is_active:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account is disabled")
-    return _auth_response(user)
+    return _issue_tokens(db, user)
 
 
 @router.get("/me", response_model=UserPublic)

@@ -79,8 +79,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return applyAuth(response.data)
       },
       logout() {
+        const refreshToken = tokenStorage.getRefreshToken()
         tokenStorage.clear()
         setUser(null)
+        if (refreshToken) {
+          // Best-effort: revoke server-side so the token can't be replayed later.
+          apiClient.post('/auth/logout', { refresh_token: refreshToken }).catch(() => {})
+        }
       },
     }),
     [user, loading],

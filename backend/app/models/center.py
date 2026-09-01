@@ -43,7 +43,7 @@ class Center(Base):
 
     offers_in_person: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     offers_remote: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    phone: Mapped[str] = mapped_column(String(40), nullable=False)
+    phone: Mapped[str] = mapped_column(String(120), nullable=False)
     email: Mapped[str | None] = mapped_column(String(320), nullable=True)
     working_hours: Mapped[str] = mapped_column(String(240), nullable=False)
     price_range: Mapped[str | None] = mapped_column(String(120), nullable=True)
@@ -58,6 +58,16 @@ class Center(Base):
     verified_by_user_id: Mapped[str | None] = mapped_column(
         ForeignKey("users.id"), nullable=True
     )
+
+    # Provenance of the listing's public-facing data — distinct from `verification_status`,
+    # which reflects Weam's own admin verification workflow, not where the data came from.
+    source_type: Mapped[str] = mapped_column(
+        String(24), default="synthetic_demo", nullable=False, index=True
+    )
+    source_urls: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
+    last_reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    data_confidence: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    listing_claimed: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utcnow, nullable=False

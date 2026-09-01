@@ -1,5 +1,6 @@
 from app.models.assistant import AssistantMessage, AssistantThread
 from app.models.admin import AdminAuditLog
+from app.models.auth_token import RefreshTokenRecord
 from app.models.care_team import AccessAuditLog, CareInvitation, CareTeamMembership
 from app.models.center import Center, CenterFavorite
 from app.models.center_account import CenterAccountMembership, CenterSpecialist
@@ -21,6 +22,7 @@ from app.models.voice_note import VoiceNote
 
 __all__ = [
     "User",
+    "RefreshTokenRecord",
     "Child",
     "ChildIdentity",
     "CareProfile",

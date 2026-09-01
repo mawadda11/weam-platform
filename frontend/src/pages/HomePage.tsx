@@ -1,4 +1,5 @@
 import { Link, Navigate } from 'react-router-dom'
+import WeamConnector from '../components/WeamConnector'
 import WeamLogo from '../components/WeamLogo'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -8,6 +9,7 @@ export default function HomePage() {
 
   return (
     <main className="welcome-page">
+      <WeamConnector />
       <div className="sky-bubble bubble-one" />
       <div className="sky-bubble bubble-two" />
       <span className="butterfly butterfly-one">✦</span>

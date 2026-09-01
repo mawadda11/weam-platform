@@ -181,10 +181,10 @@
   display: grid;
   grid-template-columns: 96px minmax(0, 1fr);
   overflow: hidden;
-  border: 1px solid #dfeae8;
+  border: 1px solid #e2ddf5;
   border-radius: 24px;
   background: #fff;
-  box-shadow: 0 11px 32px rgba(53, 96, 101, .05);
+  box-shadow: 0 11px 32px rgba(67, 56, 202, .06);
 }
 
 .matching-card-rank {
@@ -193,11 +193,11 @@
   justify-items: center;
   gap: 8px;
   padding: 18px 10px;
-  border-left: 1px solid #e3eeeb;
-  background: linear-gradient(180deg, #eaf8f5, #f9fcfb);
+  border-left: 1px solid #e6e1f5;
+  background: linear-gradient(180deg, #f0eefb, #f9fcfb);
 }
 
-.matching-card-rank > span { padding: 9px 10px; border-radius: 12px; background: #fff; color: #188c88; font-size: 11px; font-weight: 900; white-space: nowrap; }
+.matching-card-rank > span { padding: 9px 10px; border-radius: 12px; background: #fff; color: var(--primary); font-size: 11px; font-weight: 900; white-space: nowrap; }
 .matching-card-rank small { color: #507c76; font-size: 9px; font-weight: 900; text-align: center; }
 .matching-card-main { min-width: 0; padding: 21px; }
 
@@ -215,7 +215,7 @@
 
 .matching-card-details h3 { margin: 0 0 8px; color: #668084; font-size: 10px; }
 .matching-card-details ul { margin: 0; padding-right: 18px; color: #556f74; font-size: 10px; line-height: 1.9; }
-.matching-card-details li::marker { color: #18928d; }
+.matching-card-details li::marker { color: var(--primary); }
 
 .matching-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-top: 15px; }
 .matching-card-footer > span { color: #819194; font-size: 9px; }

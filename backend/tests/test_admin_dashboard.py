@@ -129,3 +129,48 @@ def test_admin_verifies_center_before_it_appears_in_directory(client):
     assert any(item["id"] == center_id for item in after.json())
     detail = client.get(f"/api/v1/centers/{center_id}", headers=headers(guardian))
     assert detail.json()["specialists"][0]["full_name"] == "أ. سارة التجريبية"
+
+
+def test_admin_can_review_center_sources_without_verifying(client):
+    """Refreshing/recording public source info must not, by itself, verify a
+    center -- the two are deliberately separate actions in the admin API."""
+    center_auth = register(client, "source.center@example.com", "center")
+    created = client.post(
+        "/api/v1/provider/center",
+        headers=headers(center_auth),
+        json={
+            "name": "مركز مصدر عام تجريبي",
+            "description": "ملف مركز تجريبي لاختبار مراجعة المصدر.",
+            "city": "جدة",
+            "address": "عنوان تجريبي",
+            "specialties": ["دعم تعليمي"],
+            "services": ["جلسات دعم"],
+            "served_needs": ["دعم تعليمي"],
+            "offers_in_person": True,
+            "offers_remote": False,
+            "phone": "+966 50 000 0900",
+            "working_hours": "الأحد–الخميس، 8 ص–5 م",
+        },
+    )
+    assert created.status_code == 201, created.text
+    center_id = created.json()["id"]
+
+    admin = create_admin(client)
+    before = client.get("/api/v1/admin/centers", headers=headers(admin))
+    before_item = next(item for item in before.json() if item["id"] == center_id)
+    assert before_item["last_reviewed_at"] is None
+    assert before_item["verification_status"] == "unverified"
+
+    reviewed = client.patch(
+        f"/api/v1/admin/centers/{center_id}",
+        headers=headers(admin),
+        json={"source_urls": ["https://example.org/center"], "mark_reviewed": True},
+    )
+    assert reviewed.status_code == 200, reviewed.text
+    assert reviewed.json()["source_urls"] == ["https://example.org/center"]
+    assert reviewed.json()["last_reviewed_at"] is not None
+    # A source review alone must not verify the center.
+    assert reviewed.json()["verification_status"] == "unverified"
+
+    audit = client.get("/api/v1/admin/audit", headers=headers(admin))
+    assert audit.json()[0]["action"] == "center_reviewed"

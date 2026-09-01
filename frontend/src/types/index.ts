@@ -373,6 +373,8 @@ export interface Center {
   longitude?: number | null
   specialists: CenterSpecialistSummary[]
   is_favorite: boolean
+  source_type: string
+  last_reviewed_at?: string | null
   created_at: string
   updated_at: string
 }
@@ -509,6 +511,11 @@ export interface AdminCenter {
   is_active: boolean
   account_count: number
   account_email?: string | null
+  source_type: string
+  source_urls: string[]
+  last_reviewed_at?: string | null
+  data_confidence?: string | null
+  listing_claimed: boolean
   created_at: string
   updated_at: string
 }

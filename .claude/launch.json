@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "weam-backend",
+      "runtimeExecutable": "powershell.exe",
+      "runtimeArgs": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "backend/run_dev.ps1"],
+      "port": 8000
+    },
+    {
+      "name": "weam-frontend",
+      "runtimeExecutable": "powershell.exe",
+      "runtimeArgs": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "frontend/run_dev.ps1"],
+      "port": 5173
+    }
+  ]
+}

@@ -5,9 +5,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 import app.models  # noqa: F401 - register SQLAlchemy models
 from app.api.router import api_router
-from app.core.config import get_settings
+from app.core.config import assert_production_ready, get_settings
 
 settings = get_settings()
+assert_production_ready(settings)
 
 
 @asynccontextmanager

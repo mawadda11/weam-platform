@@ -74,7 +74,7 @@ export default function RegisterPage() {
 
         <div className="prototype-role-grid">
           {roles.map((item) => (
-            <button type="button" key={item.value} className={`prototype-role-card ${role === item.value ? 'selected' : ''}`} onClick={() => setRole(item.value)}>
+            <button type="button" key={item.value} className={`prototype-role-card ${role === item.value ? 'selected' : ''}`} onClick={() => setRole(item.value)} aria-pressed={role === item.value}>
               <span className="prototype-role-icon">{item.icon}</span>
               <strong>{item.title}</strong>
               <small>{item.copy}</small>

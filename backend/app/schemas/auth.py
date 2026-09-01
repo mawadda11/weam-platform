@@ -38,6 +38,10 @@ class RefreshRequest(BaseModel):
     refresh_token: str = Field(min_length=20)
 
 
+class LogoutRequest(BaseModel):
+    refresh_token: str = Field(min_length=20)
+
+
 class UserPublic(BaseModel):
     id: str
     email: EmailStr

@@ -9,7 +9,8 @@ function errorMessage(error: unknown) {
   if (error instanceof AxiosError) {
     const detail = (error.response?.data as { detail?: string } | undefined)?.detail
     if (detail === 'Invalid email or password') return 'البريد الإلكتروني أو كلمة المرور غير صحيحة.'
-    if (detail) return detail
+    if (error.response?.status === 429) return 'محاولات كثيرة غير ناجحة. يرجى المحاولة لاحقًا بعد بضع دقائق.'
+    if (detail === 'Account is disabled') return 'هذا الحساب معطّل حاليًا. يرجى التواصل مع الدعم.'
   }
   return 'تعذر تسجيل الدخول. حاولي مرة أخرى.'
 }
